@@ -124,6 +124,11 @@ export default {
         popup.setLngLat(e.lngLat);
       });
 
+      map.value.on("mousemove", "countries-polygon", (e) => {
+        map.value.getCanvas().style.cursor = "pointer";
+        console.log(e.features[0].properties.name)
+      })
+
       map.value.on("mouseenter", "tesis", (e) => {
         // Change the cursor style as a UI indicator.
         map.value.getCanvas().style.cursor = "pointer";

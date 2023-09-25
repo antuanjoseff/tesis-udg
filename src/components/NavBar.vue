@@ -1,6 +1,6 @@
 <template>
   <div class="heading">
-    <h3>This is my map App</h3>
+    <h3>Mapa de Tesis UdG</h3>
   </div>
 </template>
 
