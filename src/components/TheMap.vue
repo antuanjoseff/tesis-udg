@@ -46,6 +46,7 @@ export default {
         })
       );
       map.value.addControl(new NavigationControl());
+
       var countriesData, tesisData;
       map.value.once("load", () => {
         // This code runs once the base style has finished loading.
@@ -73,73 +74,6 @@ export default {
               .catch(() => {});
           })
           .catch(() => {});
-
-        function addCountriesLayer(data) {
-          console.log(data);
-          map.value.addSource("countries", {
-            type: "geojson",
-            data: data,
-          });
-
-          map.value.addLayer({
-            id: "countries-polygon",
-            type: "fill",
-            source: "countries",
-            layout: {},
-            paint: {
-              "fill-color": [
-                "case",
-                [">", ["to-number", ["get", "tesis"]], 1000],
-                "#bd0026",
-                [">", ["to-number", ["get", "tesis"]], 30],
-                "#f03b20",
-                [">=", ["to-number", ["get", "tesis"]], 5],
-                "#fd8d3c",
-                [">=", ["to-number", ["get", "tesis"]], 4],
-                "#feb24c",
-                [">=", ["to-number", ["get", "tesis"]], 2],
-                "#fed976",
-                [">=", ["to-number", ["get", "tesis"]], 1],
-                "#ffffb2",
-                "#fff0",
-              ],
-              "fill-opacity": 0.8,
-            },
-          });
-        }
-      });
-
-      map.value.on("load", () => {
-        // Add an image to use as a custom marker
-        map.value.loadImage(
-          "https://maplibre.org/maplibre-gl-js/docs/assets/osgeo-logo.png",
-          (error, image) => {
-            if (error) throw error;
-            map.value.addImage("custom-marker", image);
-            // Add a GeoJSON source with 15 points
-            map.value.addSource("tesis", {
-              type: "geojson",
-              data: mapData,
-              // 'cluster': true,
-              // 'clusterRadius': 80
-            });
-
-            // Add a symbol layer
-            map.value.addLayer({
-              id: "tesis",
-              type: "symbol",
-              source: "tesis",
-              layout: {
-                "icon-image": "custom-marker",
-                // get the year from the source's "year" property
-                "text-field": ["get", "year"],
-                "text-font": ["Open Sans Semibold", "Arial Unicode MS Bold"],
-                "text-offset": [0, 1.25],
-                "text-anchor": "top",
-              },
-            });
-          }
-        );
       });
 
       // Create a popup, but don't add it to the map yet.
@@ -148,29 +82,14 @@ export default {
         closeOnClick: false,
       });
 
-      map.value.on("mousemove", "tesis", (e) => {
-        popup.setLngLat(e.lngLat);
-      });
-
-      map.value.on("mouseenter", "tesis", (e) => {
-        // Change the cursor style as a UI indicator.
+      map.value.on("mousemove", "countries-polygon", (e) => {
         map.value.getCanvas().style.cursor = "pointer";
-
-        const coordinates = e.features[0].geometry.coordinates.slice();
-        const description = e.features[0].properties.name;
-        // Ensure that if the map is zoomed out such that multiple
-        // copies of the feature are visible, the popup appears
-        // over the copy being pointed to.
-        // while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
-        //     coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
-        // }
-
-        // Populate the popup and set its coordinates
-        // based on the feature found.
-        popup.setLngLat(e.lngLat).setHTML(description).addTo(map.value);
+        var content =
+          e.features[0].properties.name + ": " + e.features[0].properties.tesis;
+        popup.setLngLat(e.lngLat).setHTML(content).addTo(map.value);
       });
 
-      map.value.on("mouseleave", "tesis", () => {
+      map.value.on("mouseleave", "countries-polygon", (e) => {
         map.value.getCanvas().style.cursor = "";
         popup.remove();
       });
@@ -178,6 +97,40 @@ export default {
       onUnmounted(() => {
         map.value?.remove();
       });
+
+    function addCountriesLayer(data) {
+      console.log(data);
+      map.value.addSource("countries", {
+        type: "geojson",
+        data: data,
+      });
+
+      map.value.addLayer({
+        id: "countries-polygon",
+        type: "fill",
+        source: "countries",
+        layout: {},
+        paint: {
+          "fill-color": [
+            "case",
+            [">", ["to-number", ["get", "tesis"]], 1000],
+            "#bd0026",
+            [">", ["to-number", ["get", "tesis"]], 30],
+            "#f03b20",
+            [">=", ["to-number", ["get", "tesis"]], 5],
+            "#fd8d3c",
+            [">=", ["to-number", ["get", "tesis"]], 4],
+            "#feb24c",
+            [">=", ["to-number", ["get", "tesis"]], 2],
+            "#fed976",
+            [">=", ["to-number", ["get", "tesis"]], 1],
+            "#ffffb2",
+            "#fff0",
+          ],
+          "fill-opacity": 0.8,
+        },
+      });
+    }
 
     return {
       map,
