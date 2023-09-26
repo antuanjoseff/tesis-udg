@@ -13,6 +13,7 @@
 import { Map, Popup, NavigationControl } from "maplibre-gl";
 import { shallowRef, onMounted, onUnmounted, markRaw } from "vue";
 import { mapData } from "src/assets/geojson.js";
+import { api } from "src/boot/axios";
 
 export default {
   name: "TheMap",
@@ -34,51 +35,78 @@ export default {
 
       // const initialState = { lng: -70.11617, lat: 43.6844, zoom: 14 };
       const initialState = { lng: 2.813179, lat: 41.98211, zoom: 2 };
+      let hoveredStateId = null;
+
       map.value = markRaw(
         new Map({
           container: mapContainer.value,
-          // style: 'https://geoserveis.icgc.cat/contextmaps/icgc_mapa_estandard.json',
-          // style: 'style-tesis.json',
           style: "limits.json",
           center: [initialState.lng, initialState.lat],
           zoom: initialState.zoom,
         })
       );
       map.value.addControl(new NavigationControl());
-
+      var countriesData, tesisData;
       map.value.once("load", () => {
         // This code runs once the base style has finished loading.
         const name_expr = ["get", "name"];
-        map.value.addSource("countries", {
-          type: "geojson",
-          data: "https://d2ad6b4ur7yvpq.cloudfront.net/naturalearth-3.3.0/ne_50m_admin_0_countries.geojson",
-        });
-        map.value.addLayer({
-          id: "countries-polygon",
-          type: "fill",
-          source: "countries",
-          layout: {},
-          paint: {
-            // "fill-color": [
-            //   "to-color",
-            //   ["at", ["get", "labelrank"], ["literal", COUNTRY_PALETTE]],
-            // ],
-            "fill-color":
-              // use the `level` style variable to determine the color
-              [
+        api
+          .get(
+            "//d2ad6b4ur7yvpq.cloudfront.net/naturalearth-3.3.0/ne_50m_admin_0_countries.geojson"
+          )
+          .then((response) => {
+            countriesData = response.data;
+            console.log(countriesData);
+            api
+              .get("/tesis_totals.json")
+              .then((resp) => {
+                tesisData = resp.data;
+                countriesData.features.forEach((element, idx) => {
+                  countriesData.features[idx].properties["tesis"] = tesisData[
+                    element.properties.adm0_a3_is
+                  ]
+                    ? tesisData[element.properties.adm0_a3_is]
+                    : 0;
+                });
+                addCountriesLayer(countriesData);
+              })
+              .catch(() => {});
+          })
+          .catch(() => {});
+
+        function addCountriesLayer(data) {
+          console.log(data);
+          map.value.addSource("countries", {
+            type: "geojson",
+            data: data,
+          });
+
+          map.value.addLayer({
+            id: "countries-polygon",
+            type: "fill",
+            source: "countries",
+            layout: {},
+            paint: {
+              "fill-color": [
                 "case",
-                ["==", name_expr, "Spain"],
-                "green",
-                ["==", name_expr, "France"],
-                "yellow",
-                ["==", name_expr, "Italy"],
-                "red",
-                // Default value
-                "#" + Math.floor(Math.random() * 16777215).toString(16),
+                [">", ["to-number", ["get", "tesis"]], 1000],
+                "#bd0026",
+                [">", ["to-number", ["get", "tesis"]], 30],
+                "#f03b20",
+                [">=", ["to-number", ["get", "tesis"]], 5],
+                "#fd8d3c",
+                [">=", ["to-number", ["get", "tesis"]], 4],
+                "#feb24c",
+                [">=", ["to-number", ["get", "tesis"]], 2],
+                "#fed976",
+                [">=", ["to-number", ["get", "tesis"]], 1],
+                "#ffffb2",
+                "#fff0",
               ],
-            "fill-opacity": 0.8,
-          },
-        });
+              "fill-opacity": 0.8,
+            },
+          });
+        }
       });
 
       map.value.on("load", () => {

@@ -1,0 +1,180 @@
+Arts i Educació;Espanya;6
+Arts i Educació;Canadà;1
+Arts i Educació;Alemanya;1
+Arts i Educació;Itàlia;2
+Arts i Educació;Regne Unit;1
+Biologia Molecular, biomedicina i salut;Espanya;286
+Biologia Molecular, biomedicina i salut;ARGENTINA ;1
+Biologia Molecular, biomedicina i salut;BRASIL ;1
+Biologia Molecular, biomedicina i salut;CAMBODJA ;1
+Biologia Molecular, biomedicina i salut;COLÒMBIA ;3
+Biologia Molecular, biomedicina i salut;COSTA RICA ;1
+Biologia Molecular, biomedicina i salut;EQUADOR ;2
+Biologia Molecular, biomedicina i salut;FRANÇA ;4
+Biologia Molecular, biomedicina i salut;ÍNDIA ;2
+Biologia Molecular, biomedicina i salut;ITÀLIA ;1
+Biologia Molecular, biomedicina i salut;JORDÀNIA ;1
+Biologia Molecular, biomedicina i salut;MÈXIC ;3
+Biologia Molecular, biomedicina i salut;PAÏSOS BAIXOS ;1
+Biologia Molecular, biomedicina i salut;PERÚ ;1
+Biologia Molecular, biomedicina i salut;PORTUGAL ;1
+Biologia Molecular, biomedicina i salut;REGNE UNIT ;1
+Biologia Molecular, biomedicina i salut;RÚSSIA ;1
+Biologia Molecular, biomedicina i salut;TUNÍSIA ;1
+Biologia Molecular, biomedicina i salut;UCRAÏNA ;1
+Biologia Molecular, biomedicina i salut;VENEÇUELA ;1
+Biologia Molecular, biomedicina i salut;XINA ;1
+Ciències Humanes, del Patrimoni i de la Cultura ;ESPANYA;191
+Ciències Humanes, del Patrimoni i de la Cultura ;FRANÇA ;4
+Ciències Humanes, del Patrimoni i de la Cultura ;ITÀLIA ;11
+Ciències Humanes, del Patrimoni i de la Cultura ;MÈXIC ;2
+Ciències Humanes, del Patrimoni i de la Cultura ;ALEMANYA ;1
+Ciències Humanes, del Patrimoni i de la Cultura ;COLÒMBIA ;1
+Ciències Humanes, del Patrimoni i de la Cultura ;EQUADOR ;1
+Ciències Humanes, del Patrimoni i de la Cultura ;POLÒNIA ;1
+Ciències Humanes, del Patrimoni i de la Cultura ;REGNE UNIT ;1
+Ciències Humanes, del Patrimoni i de la Cultura ;SÍRIA ;1
+Ciència i tecnologia de l'aigua;ESPANYA;86
+Ciència i tecnologia de l'aigua;ALEMANYA ;1
+Ciència i tecnologia de l'aigua;BRASIL ;2
+Ciència i tecnologia de l'aigua;CAMBODJA ;1
+Ciència i tecnologia de l'aigua;COLÒMBIA ;2
+Ciència i tecnologia de l'aigua;CROÀCIA ;1
+Ciència i tecnologia de l'aigua;EQUADOR ;1
+Ciència i tecnologia de l'aigua;GRÈCIA ;1
+Ciència i tecnologia de l'aigua;ÍNDIA ;1
+Ciència i tecnologia de l'aigua;ITÀLIA ;8
+Ciència i tecnologia de l'aigua;MALTA ;1
+Ciència i tecnologia de l'aigua;MARROC ;1
+Ciència i tecnologia de l'aigua;MONGÒLIA ;1
+Ciència i tecnologia de l'aigua;PARAGUAI ;1
+Ciència i tecnologia de l'aigua;ROMANIA;1
+Ciència i tecnologia de l'aigua;RÚSSIA ;1
+Ciència i tecnologia de l'aigua;SÈRBIA;1
+Ciència i tecnologia de l'aigua;SUÈCIA ;1
+Ciència i tecnologia de l'aigua;TUNÍSIA ;1
+Ciència i tecnologia de l'aigua;XIPRE ;1
+Dret, economia i empresa;ESPANYA;166
+Dret, economia i empresa;ALEMANYA ;1
+Dret, economia i empresa;ARGENTINA ;2
+Dret, economia i empresa;BRASIL ;5
+Dret, economia i empresa;CAMERUN ;1
+Dret, economia i empresa;COLÒMBIA ;6
+Dret, economia i empresa;CUBA ;5
+Dret, economia i empresa;EQUADOR ;5
+Dret, economia i empresa;ESLOVÀQUIA ;1
+Dret, economia i empresa;ESLOVÈNIA ;1
+Dret, economia i empresa;FRANÇA ;3
+Dret, economia i empresa;GHANA ;1
+Dret, economia i empresa;ÍNDIA ;1
+Dret, economia i empresa;IRAN ;1
+Dret, economia i empresa;ITÀLIA ;4
+Dret, economia i empresa;MÈXIC ;7
+Dret, economia i empresa;POLÒNIA ;1
+Dret, economia i empresa;PORTUGAL ;1
+Dret, economia i empresa;REGNE UNIT ;1
+Dret, economia i empresa;ROMANIA;3
+Dret, economia i empresa;TURQUIA ;1
+Dret, economia i empresa;VENEÇUELA ;2
+Dret, economia i empresa;XILE ;9
+Dret, economia i empresa;XINA ;1
+Dret, economia i empresa;ZIMBABWE ;1
+Dret, economia i empresa;BIELORÚSSIA ;1
+Educació;ESPANYA;94
+Educació;ARGENTINA ;2
+Educació;BÈLGICA ;1
+Educació;BRASIL ;2
+Educació;CUBA ;3
+Educació;EQUADOR ;2
+Educació;MÈXIC ;4
+Educació;MOÇAMBIC ;1
+Educació;NICARAGUA ;1
+Educació;RÚSSIA ;1
+Educació;VENEÇUELA ;1
+Educació;XILE ;10
+Educació;XINA ;1
+Estudis de Génere;CUBA;1
+Medi Ambient;ESPANYA;127
+Medi Ambient;ALEMANYA ;1
+Medi Ambient;ALGÈRIA ;1
+Medi Ambient;COLÒMBIA ;1
+Medi Ambient;COSTA RICA ;2
+Medi Ambient;CUBA ;24
+Medi Ambient;EGIPTE ;1
+Medi Ambient;EQUADOR ;1
+Medi Ambient;ESTATS UNITS;1
+Medi Ambient;GRÈCIA ;1
+Medi Ambient;IRAN ;1
+Medi Ambient;ITÀLIA ;5
+Medi Ambient;MÈXIC ;1
+Medi Ambient;PORTUGAL ;1
+Medi Ambient;TUNÍSIA ;2
+Medi Ambient;XILE ;1
+Psicologia de l'Eduació;ESPANYA;13
+Psicologia de l'Eduació;COLÒMBIA ;1
+Psicologia de l'Eduació;CUBA ;4
+Psicologia de l'Eduació;PORTUGAL ;1
+Psicologia de l'Eduació;VENEÇUELA ;2
+Psicologia de l'Eduació;XILE ;1
+Psicologia, Salut i Qualitat de Vida;ESPANYA;72
+Psicologia, Salut i Qualitat de Vida;ALEMANYA ;1
+Psicologia, Salut i Qualitat de Vida;BRASIL ;2
+Psicologia, Salut i Qualitat de Vida;MÈXIC ;2
+Psicologia, Salut i Qualitat de Vida;PERÚ ;1
+Psicologia, Salut i Qualitat de Vida;POLÒNIA ;1
+Psicologia, Salut i Qualitat de Vida;XILE ;15
+Química;ESPANYA;140
+Química;ITÀLIA ;4
+Química;KAZAKHSTAN ;1
+Química;MARROC ;2
+Química;MÈXIC ;2
+Química;POLÒNIA ;1
+Química;TUNÍSIA ;2
+Química;XINA ;1
+Tecnologia;ESPANYA;243
+Tecnologia;ALGÈRIA ;1
+Tecnologia;ARGENTINA ;4
+Tecnologia;AUSTRÀLIA ;1
+Tecnologia;ÀUSTRIA ;1
+Tecnologia;BANGLA DESH ;1
+Tecnologia;BRASIL ;2
+Tecnologia;CAMBODJA ;3
+Tecnologia;COLÒMBIA ;42
+Tecnologia;CUBA ;4
+Tecnologia;EGIPTE ;9
+Tecnologia;EQUADOR ;1
+Tecnologia;ESLOVÈNIA ;1
+Tecnologia;ESTATS UNITS (EUA) ;1
+Tecnologia;FRANÇA ;3
+Tecnologia;GRÈCIA ;1
+Tecnologia;ÍNDIA ;6
+Tecnologia;IRAN ;4
+Tecnologia;ITÀLIA ;4
+Tecnologia;KAZAKHSTAN ;1
+Tecnologia;MARROC ;1
+Tecnologia;MÈXIC ;5
+Tecnologia;PAKISTAN ;1
+Tecnologia;PARAGUAI ;1
+Tecnologia;POLÒNIA ;2
+Tecnologia;PORTUGAL ;4
+Tecnologia;ROMANIA;3
+Tecnologia;RÚSSIA ;1
+Tecnologia;TAILÀNDIA ;1
+Tecnologia;TRINITAT I TOBAGO ;1
+Tecnologia;TUNÍSIA ;1
+Tecnologia;TURQUIA ;2
+Tecnologia;UZBEKISTAN ;1
+Tecnologia;XILE ;1
+Tecnologia;XINA ;4
+Turisme;ESPANYA;22
+Turisme;BRASIL ;3
+Turisme;COLÒMBIA ;4
+Turisme;COREA DEL SUD ;1
+Turisme;EGIPTE ;1
+Turisme;FRANÇA ;1
+Turisme;IRAN ;2
+Turisme;ITÀLIA ;1
+Turisme;MÈXIC ;3
+Turisme;PERÚ ;1
+Turisme;PORTUGAL ;3
+Turisme;XINA ;1
