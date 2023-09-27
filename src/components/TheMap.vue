@@ -10,11 +10,10 @@
 </template>
 
 <script>
-import { Map, Popup, NavigationControl } from "maplibre-gl";
+import { Map, Popup, NavigationControl, LngLatBounds } from "maplibre-gl";
 import { shallowRef, onMounted, onUnmounted, markRaw, handleError } from "vue";
-import { mapData } from "src/assets/geojson.js";
 import { api } from "src/boot/axios";
-import { getRandomColor } from "src/lib/utils.js";
+import { getRandomColor, getBbox, getCountryGeometry } from "src/lib/utils.js";
 
 export default {
   name: "TheMap",
@@ -24,6 +23,7 @@ export default {
     let popup;
     let debounceTimer;
     let hoveredStateId = null;
+    let countriesData, tesisData;
 
     const COUNTRY_PALETTE = [
       "#f0d27e",
@@ -46,11 +46,11 @@ export default {
           style: "limits.json",
           center: [initialState.lng, initialState.lat],
           zoom: initialState.zoom,
+          maxZoom: 4,
         })
       );
       map.value.addControl(new NavigationControl());
 
-      var countriesData, tesisData;
       map.value.once("load", () => {
         // This code runs once the base style has finished loading.
         const name_expr = ["get", "name"];
@@ -89,13 +89,22 @@ export default {
         closeOnClick: false,
       });
 
+      map.value.on("click", "countries-polygon", (e) => {
+        const code = e.features[0].properties.adm0_a3;
+        const countryGeom = getCountryGeometry(countriesData, code);
+        const bounds = getBbox(countryGeom);
+        map.value.fitBounds(bounds, {
+          padding: 20,
+        });
+      });
+
       map.value.on("mousemove", "countries-polygon", debounce);
 
       map.value.on("mouseleave", "countries-polygon", (e) => {
         map.value.getCanvas().style.cursor = "";
         if (hoveredStateId) {
           map.value.setFeatureState(
-            { source: "states", id: hoveredStateId },
+            { source: "countries", id: hoveredStateId },
             { hover: false }
           );
         }
@@ -184,18 +193,18 @@ export default {
 
       var randomColors = [
         "case",
-        [">", ["to-number", ["get", "tesis"]], 1000],
+        [">", ["to-number", ["get", "tesis"]], 100],
         color1,
-        [">", ["to-number", ["get", "tesis"]], 30],
+        [">", ["to-number", ["get", "tesis"]], 50],
         color2,
-        [">=", ["to-number", ["get", "tesis"]], 5],
+        [">=", ["to-number", ["get", "tesis"]], 10],
         color3,
-        [">=", ["to-number", ["get", "tesis"]], 4],
+        [">=", ["to-number", ["get", "tesis"]], 5],
         color4,
-        [">=", ["to-number", ["get", "tesis"]], 2],
+        [">=", ["to-number", ["get", "tesis"]], 0],
         color5,
-        ["==", ["to-number", ["get", "tesis"]], 1],
-        color6,
+        // ["==", ["to-number", ["get", "tesis"]], 1],
+        // color6,
         "#fff0",
       ];
 
