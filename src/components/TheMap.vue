@@ -14,6 +14,7 @@ import { Map, Popup, NavigationControl } from "maplibre-gl";
 import { shallowRef, onMounted, onUnmounted, markRaw, handleError } from "vue";
 import { mapData } from "src/assets/geojson.js";
 import { api } from "src/boot/axios";
+import { getRandomColor } from "src/lib/utils.js";
 
 export default {
   name: "TheMap",
@@ -91,6 +92,8 @@ export default {
       map.value.on("mouseleave", "countries-polygon", (e) => {
         map.value.getCanvas().style.cursor = "";
         popup.remove();
+        console.log("mouse out");
+        map.value.setFilter("countries-polygon", null);
       });
     }),
       onUnmounted(() => {
@@ -108,6 +111,7 @@ export default {
         type: "fill",
         source: "countries",
         layout: {},
+        filter: [">", ["get", "tesis"], 0],
         paint: {
           "fill-color": [
             "case",
@@ -130,22 +134,44 @@ export default {
       });
     }
 
-    function debounce(e) {
-      let timer;
-      console.log(e.features);
-      clearTimeout(timer);
-      timer = setTimeout(handleMouseMove, 1000, e);
-    }
+    // let throttleTimer;
 
-    function handleMouseMove(e) {
-      console.log("Inside");
-      console.log(e);
-      var color1 = "#" + Math.floor(Math.random() * 16777215).toString(16);
-      var color2 = "#" + Math.floor(Math.random() * 16777215).toString(16);
-      var color3 = "#" + Math.floor(Math.random() * 16777215).toString(16);
-      var color4 = "#" + Math.floor(Math.random() * 16777215).toString(16);
-      var color5 = "#" + Math.floor(Math.random() * 16777215).toString(16);
-      var color6 = "#" + Math.floor(Math.random() * 16777215).toString(16);
+    // const throttle = (param) => {
+    //   if (throttleTimer) return;
+    //   throttleTimer = true;
+    //   setTimeout(
+    //     (features, lngLat) => {
+    //       console.log(features);
+    //       handleMouseMove(features, lngLat);
+    //       throttleTimer = false;
+    //     },
+    //     250,
+    //     param.features,
+    //     param.lngLat
+    //   );
+    // };
+
+    let debounceTimer;
+
+    const debounce = (param) => {
+      window.clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(
+        (features, lngLat) => {
+          handleMouseMove(features, lngLat);
+        },
+        100,
+        param.features,
+        param.lngLat
+      );
+    };
+
+    function handleMouseMove(features, lngLat) {
+      var color1 = getRandomColor();
+      var color2 = getRandomColor();
+      var color3 = getRandomColor();
+      var color4 = getRandomColor();
+      var color5 = getRandomColor();
+      var color6 = getRandomColor();
 
       var randomColors = [
         "case",
@@ -166,9 +192,17 @@ export default {
 
       map.value.getCanvas().style.cursor = "pointer";
       var content =
-        e.features[0].properties.name + ": " + e.features[0].properties.tesis;
+        features[0].properties.name + ": " + features[0].properties.tesis;
 
-      if (e.features[0].properties.tesis > 50) {
+      if (features[0].properties.tesis) {
+        map.value.setFilter("countries-polygon", [
+          "==",
+          "tesis",
+          features[0].properties.tesis,
+        ]);
+      }
+
+      if (features[0].properties.tesis > 50) {
         map.value.setPaintProperty("countries-polygon", "fill-color", [
           "case",
           [">", ["to-number", ["get", "tesis"]], 1000],
@@ -193,8 +227,8 @@ export default {
         );
       }
 
-      if (e.features[0].properties.tesis) {
-        popup.setLngLat(e.lngLat).setHTML(content).addTo(map.value);
+      if (features[0].properties.tesis) {
+        popup.setLngLat(lngLat).setHTML(content).addTo(map.value);
       }
     }
 
