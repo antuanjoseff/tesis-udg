@@ -22,6 +22,8 @@ export default {
     const mapContainer = shallowRef(null);
     const map = shallowRef(null);
     let popup;
+    let debounceTimer;
+    let hoveredStateId = null;
 
     const COUNTRY_PALETTE = [
       "#f0d27e",
@@ -37,7 +39,6 @@ export default {
 
       // const initialState = { lng: -70.11617, lat: 43.6844, zoom: 14 };
       const initialState = { lng: 2.813179, lat: 41.98211, zoom: 2 };
-      let hoveredStateId = null;
 
       map.value = markRaw(
         new Map({
@@ -68,6 +69,7 @@ export default {
               .then((resp) => {
                 tesisData = resp.data;
                 countriesData.features.forEach((element, idx) => {
+                  countriesData.features[idx]["id"] = idx;
                   countriesData.features[idx].properties["tesis"] = tesisData[
                     element.properties.adm0_a3_is
                   ]
@@ -91,9 +93,16 @@ export default {
 
       map.value.on("mouseleave", "countries-polygon", (e) => {
         map.value.getCanvas().style.cursor = "";
+        if (hoveredStateId) {
+          map.value.setFeatureState(
+            { source: "states", id: hoveredStateId },
+            { hover: false }
+          );
+        }
+        hoveredStateId = null;
         popup.remove();
-        console.log("mouse out");
-        map.value.setFilter("countries-polygon", null);
+        window.clearTimeout(debounceTimer);
+        // map.value.setFilter("countries-polygon", null);
       });
     }),
       onUnmounted(() => {
@@ -101,6 +110,7 @@ export default {
       });
 
     function addCountriesLayer(data) {
+      console.log(data);
       map.value.addSource("countries", {
         type: "geojson",
         data: data,
@@ -111,7 +121,7 @@ export default {
         type: "fill",
         source: "countries",
         layout: {},
-        filter: [">", ["get", "tesis"], 0],
+        // filter: [">", ["get", "tesis"], 0],
         paint: {
           "fill-color": [
             "case",
@@ -129,29 +139,15 @@ export default {
             "#ffffb2",
             "#fff0",
           ],
-          "fill-opacity": 0.8,
+          "fill-opacity": [
+            "case",
+            ["boolean", ["feature-state", "hover"], false],
+            1,
+            0.4,
+          ],
         },
       });
     }
-
-    // let throttleTimer;
-
-    // const throttle = (param) => {
-    //   if (throttleTimer) return;
-    //   throttleTimer = true;
-    //   setTimeout(
-    //     (features, lngLat) => {
-    //       console.log(features);
-    //       handleMouseMove(features, lngLat);
-    //       throttleTimer = false;
-    //     },
-    //     250,
-    //     param.features,
-    //     param.lngLat
-    //   );
-    // };
-
-    let debounceTimer;
 
     const debounce = (param) => {
       window.clearTimeout(debounceTimer);
@@ -159,10 +155,23 @@ export default {
         (features, lngLat) => {
           handleMouseMove(features, lngLat);
         },
-        100,
+        250,
         param.features,
         param.lngLat
       );
+      if (param.features.length > 0) {
+        if (hoveredStateId) {
+          map.value.setFeatureState(
+            { source: "countries", id: hoveredStateId },
+            { hover: false }
+          );
+        }
+        hoveredStateId = param.features[0].id;
+        map.value.setFeatureState(
+          { source: "countries", id: hoveredStateId },
+          { hover: true }
+        );
+      }
     };
 
     function handleMouseMove(features, lngLat) {
@@ -194,14 +203,13 @@ export default {
       var content =
         features[0].properties.name + ": " + features[0].properties.tesis;
 
-      if (features[0].properties.tesis) {
-        map.value.setFilter("countries-polygon", [
-          "==",
-          "tesis",
-          features[0].properties.tesis,
-        ]);
-      }
-
+      // if (features[0].properties.tesis) {
+      //   map.value.setFilter("countries-polygon", [
+      //     "==",
+      //     "tesis",
+      //     features[0].properties.tesis,
+      //   ]);
+      // }
       if (features[0].properties.tesis > 50) {
         map.value.setPaintProperty("countries-polygon", "fill-color", [
           "case",
@@ -218,6 +226,12 @@ export default {
           [">=", ["to-number", ["get", "tesis"]], 1],
           "blue",
           "#fff0",
+        ]);
+        map.value.setPaintProperty("countries-polygon", "fill-opacity", [
+          "case",
+          [">", ["get", "tesis"], 15],
+          1,
+          0.3,
         ]);
       } else {
         map.value.setPaintProperty(
