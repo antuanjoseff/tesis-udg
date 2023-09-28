@@ -13,7 +13,7 @@
 import { Map, Popup, NavigationControl, LngLatBounds } from "maplibre-gl";
 import { shallowRef, onMounted, onUnmounted, markRaw, handleError } from "vue";
 import { api } from "src/boot/axios";
-import { getRandomColor, getBbox, getCountryGeometry } from "src/lib/utils.js";
+import { getRandomColor, getBbox, getCountryGeometry, getCountryAbstract } from "src/lib/utils.js";
 
 export default {
   name: "TheMap",
@@ -55,7 +55,7 @@ export default {
         // This code runs once the base style has finished loading.
         const name_expr = ["get", "name"];
         var tesisUrl = process.env.DEV
-          ? "/tesis_totals.json"
+          ? "/tesis_llista.json"
           : "//sigserver4.udg.edu/tesis/spa/tesis_totals.json";
 
         api
@@ -70,11 +70,16 @@ export default {
                 tesisData = resp.data;
                 countriesData.features.forEach((element, idx) => {
                   countriesData.features[idx]["id"] = idx;
-                  countriesData.features[idx].properties["tesis"] = tesisData[
-                    element.properties.adm0_a3_is
-                  ]
-                    ? tesisData[element.properties.adm0_a3_is]
-                    : 0;
+                  var code = element.properties.adm0_a3_is
+                  var abstract = getCountryAbstract(tesisData, code)
+                  
+                  countriesData.features[idx].properties["tesis"] = abstract.total
+                  countriesData.features[idx].properties["abstract"] = abstract.abstract
+                  // countriesData.features[idx].properties["tesis"] = tesisData[
+                  //   element.properties.adm0_a3_is
+                  // ]
+                  //   ? tesisData[element.properties.adm0_a3_is]
+                  //   : 0;
                 });
                 addCountriesLayer(countriesData);
               })
@@ -132,6 +137,12 @@ export default {
         layout: {},
         // filter: [">", ["get", "tesis"], 0],
         paint: {
+          'fill-opacity': [
+            "case",
+            ["boolean", ["feature-state", "hover"], false],
+            0.9,
+            0.7
+          ],
           "fill-color": [
             "case",
             [">", ["to-number", ["get", "tesis"]], 1000],
@@ -148,14 +159,25 @@ export default {
             "#ffffb2",
             "#fff0",
           ],
-          "fill-opacity": [
-            "case",
-            ["boolean", ["feature-state", "hover"], false],
-            1,
-            0.4,
-          ],
         },
       });
+      // Add polygons outline as new layer
+      map.value.addLayer({
+        id: "countries-boundaries",
+        type: "line",
+        source: "countries",
+        layout: {},
+        paint: {
+          'line-color': '#000',
+          'line-width': [
+            "case",
+            ["==", ["to-number", ["get", "tesis"]], 0], 0,
+            ["boolean", ["feature-state", "hover"], false],
+            2,
+            1
+          ],
+        }
+      })      
     }
 
     const debounce = (param) => {
@@ -164,7 +186,7 @@ export default {
         (features, lngLat) => {
           handleMouseMove(features, lngLat);
         },
-        250,
+        10,
         param.features,
         param.lngLat
       );
@@ -184,74 +206,65 @@ export default {
     };
 
     function handleMouseMove(features, lngLat) {
-      var color1 = getRandomColor();
-      var color2 = getRandomColor();
-      var color3 = getRandomColor();
-      var color4 = getRandomColor();
-      var color5 = getRandomColor();
-      var color6 = getRandomColor();
-
-      var randomColors = [
-        "case",
-        [">", ["to-number", ["get", "tesis"]], 100],
-        color1,
-        [">", ["to-number", ["get", "tesis"]], 50],
-        color2,
-        [">=", ["to-number", ["get", "tesis"]], 10],
-        color3,
-        [">=", ["to-number", ["get", "tesis"]], 5],
-        color4,
-        [">=", ["to-number", ["get", "tesis"]], 0],
-        color5,
-        // ["==", ["to-number", ["get", "tesis"]], 1],
-        // color6,
-        "#fff0",
-      ];
-
       map.value.getCanvas().style.cursor = "pointer";
+      console.log(features[0].properties.tesis)
       var content =
         features[0].properties.name + ": " + features[0].properties.tesis;
+      
+      content += '<br/>' + features[0].properties.abstract;
 
-      // if (features[0].properties.tesis) {
-      //   map.value.setFilter("countries-polygon", [
-      //     "==",
-      //     "tesis",
-      //     features[0].properties.tesis,
+      // var color1 = getRandomColor();
+      // var color2 = getRandomColor();
+      // var color3 = getRandomColor();
+      // var color4 = getRandomColor();
+      // var color5 = getRandomColor();
+      // var color6 = getRandomColor();
+
+      // var randomColors = [
+      //   "case",
+      //   [">", ["to-number", ["get", "tesis"]], 100],
+      //   color1,
+      //   [">", ["to-number", ["get", "tesis"]], 50],
+      //   color2,
+      //   [">=", ["to-number", ["get", "tesis"]], 10],
+      //   color3,
+      //   [">=", ["to-number", ["get", "tesis"]], 5],
+      //   color4,
+      //   [">=", ["to-number", ["get", "tesis"]], 0],
+      //   color5,
+      //   // ["==", ["to-number", ["get", "tesis"]], 1],
+      //   // color6,
+      //   "#fff0",
+      // ];
+      // if (features[0].properties.tesis > 50) {
+      //   map.value.setPaintProperty("countries-polygon", "fill-color", [
+      //     "case",
+      //     [">", ["to-number", ["get", "tesis"]], 1000],
+      //     "violet",
+      //     [">", ["to-number", ["get", "tesis"]], 30],
+      //     "red",
+      //     [">=", ["to-number", ["get", "tesis"]], 5],
+      //     "orange",
+      //     [">=", ["to-number", ["get", "tesis"]], 4],
+      //     "yellow",
+      //     [">=", ["to-number", ["get", "tesis"]], 2],
+      //     "green",
+      //     [">=", ["to-number", ["get", "tesis"]], 1],
+      //     "blue",
+      //     "#fff0",
       //   ]);
+      // } else {
+      //   map.value.setPaintProperty(
+      //     "countries-polygon",
+      //     "fill-color",
+      //     randomColors
+      //   );
       // }
-      if (features[0].properties.tesis > 50) {
-        map.value.setPaintProperty("countries-polygon", "fill-color", [
-          "case",
-          [">", ["to-number", ["get", "tesis"]], 1000],
-          "violet",
-          [">", ["to-number", ["get", "tesis"]], 30],
-          "red",
-          [">=", ["to-number", ["get", "tesis"]], 5],
-          "orange",
-          [">=", ["to-number", ["get", "tesis"]], 4],
-          "yellow",
-          [">=", ["to-number", ["get", "tesis"]], 2],
-          "green",
-          [">=", ["to-number", ["get", "tesis"]], 1],
-          "blue",
-          "#fff0",
-        ]);
-        map.value.setPaintProperty("countries-polygon", "fill-opacity", [
-          "case",
-          [">", ["get", "tesis"], 15],
-          1,
-          0.3,
-        ]);
-      } else {
-        map.value.setPaintProperty(
-          "countries-polygon",
-          "fill-color",
-          randomColors
-        );
-      }
 
       if (features[0].properties.tesis) {
         popup.setLngLat(lngLat).setHTML(content).addTo(map.value);
+      } else {
+        popup.remove();
       }
     }
 

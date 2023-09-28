@@ -62,4 +62,20 @@ const getCountryGeometry = (countriesData, code) => {
   }
 };
 
-export { getRandomColor, getBbox, getCountryGeometry };
+const getCountryAbstract = (tesis_list, code) => {
+  var total = 0
+  var abstract = {}
+  tesis_list.forEach((tesis) => {
+     if (tesis.iso3 === code){
+       total += 1
+       if (tesis.programa in abstract){
+        abstract[tesis.programa] += 1
+      } else {
+        abstract[tesis.programa] = 1
+      }
+    } 
+  });
+  return {total, abstract}
+};
+
+export { getRandomColor, getBbox, getCountryGeometry, getCountryAbstract };
