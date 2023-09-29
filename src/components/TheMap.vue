@@ -13,7 +13,7 @@
 import { Map, Popup, NavigationControl, LngLatBounds } from "maplibre-gl";
 import { shallowRef, onMounted, onUnmounted, markRaw, handleError } from "vue";
 import { api } from "src/boot/axios";
-import { getRandomColor, getBbox, getCountryGeometry, getCountryAbstract } from "src/lib/utils.js";
+import { getRandomColor, getBbox, getCountryGeometry, getCountryAbstract, formatPopup } from "src/lib/utils.js";
 
 export default {
   name: "TheMap",
@@ -114,7 +114,7 @@ export default {
           );
         }
         hoveredStateId = null;
-        popup.remove();
+        // popup.remove();
         window.clearTimeout(debounceTimer);
         // map.value.setFilter("countries-polygon", null);
       });
@@ -124,7 +124,6 @@ export default {
       });
 
     function addCountriesLayer(data) {
-      console.log(data);
       map.value.addSource("countries", {
         type: "geojson",
         data: data,
@@ -207,11 +206,15 @@ export default {
 
     function handleMouseMove(features, lngLat) {
       map.value.getCanvas().style.cursor = "pointer";
-      console.log(features[0].properties.tesis)
-      var content =
-        features[0].properties.name + ": " + features[0].properties.tesis;
-      
-      content += '<br/>' + features[0].properties.abstract;
+
+      var content = `
+        <div class="popupTitle">
+          <div class="name">  ${features[0].properties.name} </div> 
+          <div class="total">${features[0].properties.tesis}</div>
+        </div>`
+
+      const details = formatPopup(features[0].properties.abstract)
+      content += details
 
       // var color1 = getRandomColor();
       // var color2 = getRandomColor();
@@ -296,4 +299,5 @@ export default {
   bottom: 10px;
   z-index: 999;
 }
+
 </style>

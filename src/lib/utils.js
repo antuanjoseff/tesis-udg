@@ -14,9 +14,8 @@ function getArrayDepth(value) {
 }
 
 const getBbox = (geometry) => {
-  console.log(getArrayDepth(geometry.coordinates));
   let xmin, ymin, xmax, ymax;
-  console.log(geometry);
+
   if (getArrayDepth(geometry.coordinates) === 3) {
     xmin = geometry.coordinates[0][0][0];
     xmax = geometry.coordinates[0][0][0];
@@ -46,7 +45,7 @@ const getBbox = (geometry) => {
       });
     });
   }
-  console.log([xmin, ymin, xmax, ymax]);
+
   return [xmin, ymin, xmax, ymax];
 };
 
@@ -75,7 +74,37 @@ const getCountryAbstract = (tesis_list, code) => {
       }
     } 
   });
+  // Create a table to sort it later
+  abstract =  Object.entries(abstract)
   return {total, abstract}
 };
 
-export { getRandomColor, getBbox, getCountryGeometry, getCountryAbstract };
+const formatPopup = (obj) => {
+  function sortFunction(a, b) {
+    if (a[1] === b[1]) {
+        return 0;
+    }
+    else {
+        return (a[1] < b[1]) ? 1 : -1;
+    }
+  }
+  var html = '<table>'
+  if (typeof(obj) === "string") {
+    const base = (JSON.parse(obj))
+    // Sort table 
+    base.sort(sortFunction)
+    base.forEach(function(programa) {
+      html += `<tr><td>${programa[0]}</td><td>${programa[1]}</td></tr>`
+    })
+  }
+  html += '</table>'
+  return html
+}
+
+export { 
+  getRandomColor,
+  getBbox,
+  getCountryGeometry,
+  getCountryAbstract,
+  formatPopup
+};
