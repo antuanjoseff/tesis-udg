@@ -13,7 +13,13 @@
 import { Map, Popup, NavigationControl, LngLatBounds } from "maplibre-gl";
 import { shallowRef, onMounted, onUnmounted, markRaw, handleError } from "vue";
 import { api } from "src/boot/axios";
-import { getRandomColor, getBbox, getCountryGeometry, getCountryAbstract, formatPopup } from "src/lib/utils.js";
+import { getRandomColor,
+         getBbox,
+         getCountryGeometry,
+         getCountryAbstract,
+         organizeTesisData,
+         formatPopup
+       } from "src/lib/utils.js";
 
 export default {
   name: "TheMap",
@@ -67,19 +73,14 @@ export default {
             api
               .get(tesisUrl)
               .then((resp) => {
-                tesisData = resp.data;
+                tesisData = organizeTesisData(resp.data, 'TECNOLOGIA');
                 countriesData.features.forEach((element, idx) => {
-                  countriesData.features[idx]["id"] = idx;
                   var code = element.properties.adm0_a3_is
-                  var abstract = getCountryAbstract(tesisData, code)
-                  
-                  countriesData.features[idx].properties["tesis"] = abstract.total
-                  countriesData.features[idx].properties["abstract"] = abstract.abstract
-                  // countriesData.features[idx].properties["tesis"] = tesisData[
-                  //   element.properties.adm0_a3_is
-                  // ]
-                  //   ? tesisData[element.properties.adm0_a3_is]
-                  //   : 0;
+                  countriesData.features[idx]["id"] = idx;
+                  if (code in tesisData) {
+                    countriesData.features[idx].properties["tesis"] = tesisData[code].total
+                    countriesData.features[idx].properties["abstract"] = tesisData[code].abstract
+                  } 
                 });
                 addCountriesLayer(countriesData);
               })

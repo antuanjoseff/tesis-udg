@@ -79,6 +79,44 @@ const getCountryAbstract = (tesis_list, code) => {
   return {total, abstract}
 };
 
+const organizeTesisData = (tesis_list, filter='') => {
+  var result = {}
+  var data
+  // Filter data if necessary
+  if (filter !== '') {    
+    data = tesis_list.filter((e) => {
+      return (e.programa.toUpperCase() == filter)
+    })
+  } else {
+    data = tesis_list
+  }
+  
+  data.forEach((tesis) => {
+    if (tesis.iso3 in result){
+      result[tesis.iso3].total += 1
+
+      // Check if tesis.programa is in 2D array
+      const index = result[tesis.iso3].abstract.findIndex((element) => {
+        return element[0].indexOf(tesis.programa) != -1
+      })
+      if (index !== -1){
+        result[tesis.iso3].abstract[index][1] += 1
+      } else {
+        result[tesis.iso3].abstract.push([tesis.programa, 1])
+      }
+    } else {
+      result[tesis.iso3] = {
+          total: 1,
+          abstract: [[tesis.programa, 1]]
+       }
+     }
+
+  });
+  // Create a table to sort it later
+  return result
+};
+
+
 const formatPopup = (obj) => {
   function sortFunction(a, b) {
     if (a[1] === b[1]) {
@@ -105,6 +143,7 @@ export {
   getRandomColor,
   getBbox,
   getCountryGeometry,
+  organizeTesisData,
   getCountryAbstract,
   formatPopup
 };
