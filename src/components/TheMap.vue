@@ -130,7 +130,11 @@ export default {
       map.value?.remove();
     });
 
-    const filterData = (filter) => {
+    function sleep(ms) {
+      return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    const filterData = async (filter) => {
       const tesisData = organizeTesisData(originalData, filter);
       tesisPaisos = tesisData.paisos
       countriesData.features.forEach((element, idx) => {
@@ -145,7 +149,19 @@ export default {
         } 
       });
       
+      for (var opacity = 0; opacity <= 0.7;  opacity+=0.01) {
+        map.value.setPaintProperty('countries-polygon', 'fill-opacity', (1 - opacity));  
+        map.value.setPaintProperty('countries-boundary', 'fill-opacity', (1 - opacity));  
+        await sleep(5);
+      }
+            
       map.value.getSource('countries').setData(countriesData);
+
+      for (var opacity = 0; opacity <= 0.7;  opacity+=0.01) {
+        map.value.setPaintProperty('countries-polygon', 'fill-opacity', opacity);  
+        map.value.setPaintProperty('countries-boundary', 'fill-opacity', opacity);          
+        await sleep(5);
+      }
     }
 
     function addCountriesLayer(data) {
