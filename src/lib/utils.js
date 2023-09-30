@@ -81,11 +81,13 @@ const getCountryAbstract = (tesis_list, code) => {
 
 const organizeTesisData = (tesis_list, filter='') => {
   var result = {}
+  var programes = []
   var data
+  
   // Filter data if necessary
   if (filter !== '') {    
     data = tesis_list.filter((e) => {
-      return (e.programa.toUpperCase() == filter)
+      return (e.programa.toUpperCase() == filter.toUpperCase())
     })
   } else {
     data = tesis_list
@@ -94,7 +96,8 @@ const organizeTesisData = (tesis_list, filter='') => {
   data.forEach((tesis) => {
     if (tesis.iso3 in result){
       result[tesis.iso3].total += 1
-
+      if (programes.indexOf(tesis.programa) === -1) programes.push(tesis.programa)
+      
       // Check if tesis.programa is in 2D array
       const index = result[tesis.iso3].abstract.findIndex((element) => {
         return element[0].indexOf(tesis.programa) != -1
@@ -112,8 +115,9 @@ const organizeTesisData = (tesis_list, filter='') => {
      }
 
   });
+
   // Create a table to sort it later
-  return result
+  return { programes: programes , paisos: result }
 };
 
 

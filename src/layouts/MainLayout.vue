@@ -1,21 +1,31 @@
 <template>
   <div class="app">
-    <!-- <NavBar /> -->
-    <TheMap />
+    <NavBar @clickPrograme="clickPrograme"/>
+    <TheMap ref="MAP"/>
   </div>
 </template>
 
 <script>
-// import NavBar from "components/NavBar.vue";
+import NavBar from "components/NavBar.vue";
 import TheMap from "components/TheMap.vue";
 import "maplibre-gl/dist/maplibre-gl.css";
-
+import { ref } from 'vue'
 export default {
   name: "App",
   components: {
-    // NavBar,
+    NavBar,
     TheMap,
   },
+  setup() {
+    const MAP = ref()
+    const clickPrograme = (e) => {
+      MAP.value.filterData(e)
+    }
+    return {
+      MAP,
+      clickPrograme
+    }
+  }
 };
 </script>
 

@@ -20,6 +20,7 @@ import { getRandomColor,
          organizeTesisData,
          formatPopup
        } from "src/lib/utils.js";
+import { useAppStore } from '../stores/appStore.js'
 
 export default {
   name: "TheMap",
@@ -29,7 +30,8 @@ export default {
     let popup;
     let debounceTimer;
     let hoveredStateId = null;
-    let countriesData, tesisData;
+    let countriesData, tesisData, tesisPaisos, originalData;
+    const appStore = useAppStore()
 
     const COUNTRY_PALETTE = [
       "#f0d27e",
@@ -73,13 +75,16 @@ export default {
             api
               .get(tesisUrl)
               .then((resp) => {
-                tesisData = organizeTesisData(resp.data, 'TECNOLOGIA');
+                originalData = resp.data
+                tesisData = organizeTesisData(originalData);
+                tesisPaisos = tesisData.paisos
+                appStore.setProgrames(tesisData.programes.sort())
                 countriesData.features.forEach((element, idx) => {
                   var code = element.properties.adm0_a3_is
                   countriesData.features[idx]["id"] = idx;
-                  if (code in tesisData) {
-                    countriesData.features[idx].properties["tesis"] = tesisData[code].total
-                    countriesData.features[idx].properties["abstract"] = tesisData[code].abstract
+                  if (code in tesisPaisos) {
+                    countriesData.features[idx].properties["tesis"] = tesisPaisos[code].total
+                    countriesData.features[idx].properties["abstract"] = tesisPaisos[code].abstract
                   } 
                 });
                 addCountriesLayer(countriesData);
@@ -120,9 +125,28 @@ export default {
         // map.value.setFilter("countries-polygon", null);
       });
     }),
-      onUnmounted(() => {
-        map.value?.remove();
+
+    onUnmounted(() => {
+      map.value?.remove();
+    });
+
+    const filterData = (filter) => {
+      const tesisData = organizeTesisData(originalData, filter);
+      tesisPaisos = tesisData.paisos
+      countriesData.features.forEach((element, idx) => {
+        var code = element.properties.adm0_a3_is
+        countriesData.features[idx]["id"] = idx;
+        if (code in tesisPaisos) {
+          countriesData.features[idx].properties["tesis"] = tesisPaisos[code].total
+          countriesData.features[idx].properties["abstract"] = tesisPaisos[code].abstract
+        } else {
+          countriesData.features[idx].properties["tesis"] = 0
+          countriesData.features[idx].properties["abstract"] = null
+        } 
       });
+      
+      map.value.getSource('countries').setData(countriesData);
+    }
 
     function addCountriesLayer(data) {
       map.value.addSource("countries", {
@@ -275,6 +299,7 @@ export default {
     return {
       map,
       mapContainer,
+      filterData
     };
   },
 };
