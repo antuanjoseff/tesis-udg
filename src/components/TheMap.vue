@@ -6,47 +6,68 @@
         alt="MapTiler logo"
     /></a>
     <div class="map" ref="mapContainer"></div>
+    <toggle-layer @toggleLayerType="toggleLayerType" />
   </div>
 </template>
 
 <script>
+import { useAppStore } from "../stores/appStore.js";
+import ToggleLayer from "components/ToggleLayer.vue";
 import { Map, Popup, NavigationControl, LngLatBounds } from "maplibre-gl";
-import { shallowRef, onMounted, onUnmounted, markRaw, handleError } from "vue";
-import { api } from "src/boot/axios";
-import { getRandomColor,
-         getBbox,
-         getCountryGeometry,
-         getCountryAbstract,
-         organizeTesisData,
-         formatPopup
-       } from "src/lib/utils.js";
-import { useAppStore } from '../stores/appStore.js'
+import { shallowRef, onMounted, onUnmounted, markRaw, computed } from "vue";
+import {
+  getRandomColor,
+  getBbox,
+  getCountryGeometry,
+  getCountryAbstract,
+  organizeTesisData,
+  formatPopup,
+  getData,
+  addThesisDataTo,
+} from "src/lib/utils.js";
+import {
+  clusters as clustersProperties,
+  countries as countriesProperties,
+} from "src/lib/paintProperties.js";
 
 export default {
   name: "TheMap",
+  components: { ToggleLayer },
   setup() {
     const mapContainer = shallowRef(null);
     const map = shallowRef(null);
     let popup;
     let debounceTimer;
     let hoveredStateId = null;
-    let countriesData, tesisData, tesisPaisos, originalData;
-    const appStore = useAppStore()
+    let centroidsData, countriesData, thesisData, thesisCountries, originalData;
+    const appStore = useAppStore();
 
-    const COUNTRY_PALETTE = [
-      "#f0d27e",
-      "#789d23",
-      "#c06e51",
-      "#b3e467",
-      "#84241a",
-      "#d9c0c7",
-    ];
+    const isClustered = computed(() => {
+      return appStore.isClustered;
+    });
+
+    const toggleLayerType = () => {
+      appStore.setClustered(!appStore.isClustered);
+      if (isClustered.value) {
+        map.value.setLayoutProperty("countries", "visibility", "none");
+        map.value.setLayoutProperty("clusters", "visibility", "visible");
+        map.value.setLayoutProperty("clusters-count", "visibility", "visible");
+      } else {
+        map.value.setLayoutProperty("clusters", "visibility", "none");
+        map.value.setLayoutProperty("clusters-count", "visibility", "none");
+        map.value.setLayoutProperty("countries", "visibility", "visible");
+      }
+    };
 
     onMounted(() => {
       //   const apiKey = 'YOUR_MAPTILER_API_KEY_HERE';
 
       // const initialState = { lng: -70.11617, lat: 43.6844, zoom: 14 };
       const initialState = { lng: 2.813179, lat: 41.98211, zoom: 2 };
+
+      const homePosition = {
+        center: [144, -37],
+      };
 
       map.value = markRaw(
         new Map({
@@ -59,39 +80,49 @@ export default {
       );
       map.value.addControl(new NavigationControl());
 
-      map.value.once("load", () => {
+      map.value.once("load", async () => {
         // This code runs once the base style has finished loading.
         const name_expr = ["get", "name"];
-        var tesisUrl = process.env.DEV
+        var thesisUrl = process.env.DEV
           ? "/tesis_llista.json"
           : "//sigserver4.udg.edu/tesis/spa/tesis_totals.json";
 
-        api
-          .get(
-            "//d2ad6b4ur7yvpq.cloudfront.net/naturalearth-3.3.0/ne_50m_admin_0_countries.geojson"
-          )
-          .then((response) => {
-            countriesData = response.data;
-            api
-              .get(tesisUrl)
-              .then((resp) => {
-                originalData = resp.data
-                tesisData = organizeTesisData(originalData);
-                tesisPaisos = tesisData.paisos
-                appStore.setProgrames(tesisData.programes.sort())
-                countriesData.features.forEach((element, idx) => {
-                  var code = element.properties.adm0_a3_is
-                  countriesData.features[idx]["id"] = idx;
-                  if (code in tesisPaisos) {
-                    countriesData.features[idx].properties["tesis"] = tesisPaisos[code].total
-                    countriesData.features[idx].properties["abstract"] = tesisPaisos[code].abstract
-                  } 
-                });
-                addCountriesLayer(countriesData);
-              })
-              .catch(() => {});
-          })
-          .catch(() => {});
+        var centroidsUrl = "/centroids.json";
+        var countriesUrl =
+          "//d2ad6b4ur7yvpq.cloudfront.net/naturalearth-3.3.0/ne_50m_admin_0_countries.geojson";
+
+        originalData = await getData(thesisUrl);
+        centroidsData = await getData(centroidsUrl);
+        countriesData = await getData(countriesUrl);
+
+        thesisData = organizeTesisData(originalData);
+        thesisCountries = thesisData.paisos;
+        appStore.setProgrames(thesisData.programes.sort());
+
+        countriesData = addThesisDataTo(countriesData, thesisCountries);
+        centroidsData = addThesisDataTo(centroidsData, thesisCountries);
+
+        // Sort data to first draw bigger circles
+        countriesData.features.sort((a, b) => {
+          if (a.properties.tesis === b.properties.tesis) {
+            return 0;
+          } else {
+            return a.properties.tesis < b.properties.tesis ? 1 : -1;
+          }
+        });
+
+        // Add sources (countries & boundaries)
+        map.value.addSource("countries", {
+          type: "geojson",
+          data: countriesData,
+        });
+
+        map.value.addSource("clusters", {
+          type: "geojson",
+          data: centroidsData,
+        });
+
+        addLayersToMap();
       });
 
       // Create a popup, but don't add it to the map yet.
@@ -100,7 +131,7 @@ export default {
         closeOnClick: false,
       });
 
-      map.value.on("click", "countries-polygon", (e) => {
+      map.value.on("click", "countries", (e) => {
         const code = e.features[0].properties.adm0_a3;
         const countryGeom = getCountryGeometry(countriesData, code);
         const bounds = getBbox(countryGeom);
@@ -109,9 +140,9 @@ export default {
         });
       });
 
-      map.value.on("mousemove", "countries-polygon", debounce);
+      map.value.on("mousemove", "countries", debounce);
 
-      map.value.on("mouseleave", "countries-polygon", (e) => {
+      map.value.on("mouseleave", "countries", (e) => {
         map.value.getCanvas().style.cursor = "";
         if (hoveredStateId) {
           map.value.setFeatureState(
@@ -122,127 +153,116 @@ export default {
         hoveredStateId = null;
         // popup.remove();
         window.clearTimeout(debounceTimer);
-        // map.value.setFilter("countries-polygon", null);
+        // map.value.setFilter("countries", null);
       });
     }),
-
-    onUnmounted(() => {
-      map.value?.remove();
-    });
-
-    function sleep(ms) {
-      return new Promise(resolve => setTimeout(resolve, ms));
-    }
-
+      onUnmounted(() => {
+        map.value?.remove();
+      });
     const filterData = async (filter) => {
-      const tesisData = organizeTesisData(originalData, filter);
-      tesisPaisos = tesisData.paisos
+      const thesisData = organizeTesisData(originalData, filter);
+      thesisCountries = thesisData.paisos;
       countriesData.features.forEach((element, idx) => {
-        var code = element.properties.adm0_a3_is
+        var code = element.properties.iso_a3;
         countriesData.features[idx]["id"] = idx;
-        if (code in tesisPaisos) {
-          countriesData.features[idx].properties["tesis"] = tesisPaisos[code].total
-          countriesData.features[idx].properties["abstract"] = tesisPaisos[code].abstract
+        if (code in thesisCountries) {
+          countriesData.features[idx].properties["tesis"] =
+            thesisCountries[code].total;
+          countriesData.features[idx].properties["abstract"] =
+            thesisCountries[code].abstract;
         } else {
-          countriesData.features[idx].properties["tesis"] = 0
-          countriesData.features[idx].properties["abstract"] = null
-        } 
-      });
-      
-      for (var opacity = 0; opacity <= 0.7;  opacity+=0.01) {
-        map.value.setPaintProperty('countries-polygon', 'fill-opacity', (1 - opacity));  
-        map.value.setPaintProperty('countries-boundary', 'fill-opacity', (1 - opacity));  
-        await sleep(5);
-      }
-            
-      map.value.getSource('countries').setData(countriesData);
-
-      for (var opacity = 0; opacity <= 0.7;  opacity+=0.01) {
-        map.value.setPaintProperty('countries-polygon', 'fill-opacity', opacity);  
-        map.value.setPaintProperty('countries-boundary', 'fill-opacity', opacity);          
-        await sleep(5);
-      }
-    }
-
-    function addCountriesLayer(data) {
-      map.value.addSource("countries", {
-        type: "geojson",
-        data: data,
+          countriesData.features[idx].properties["tesis"] = 0;
+          countriesData.features[idx].properties["abstract"] = null;
+        }
       });
 
+      map.value.getSource("countries").setData(countriesData);
+    };
+
+    function addLayersToMap() {
+      // Add countries boundaries
       map.value.addLayer({
-        id: "countries-polygon",
-        type: "fill",
-        source: "countries",
-        layout: {},
-        // filter: [">", ["get", "tesis"], 0],
-        paint: {
-          'fill-opacity': [
-            "case",
-            ["boolean", ["feature-state", "hover"], false],
-            0.9,
-            0.7
-          ],
-          "fill-color": [
-            "case",
-            [">", ["to-number", ["get", "tesis"]], 1000],
-            "#bd0026",
-            [">", ["to-number", ["get", "tesis"]], 30],
-            "#f03b20",
-            [">=", ["to-number", ["get", "tesis"]], 5],
-            "#fd8d3c",
-            [">=", ["to-number", ["get", "tesis"]], 4],
-            "#feb24c",
-            [">=", ["to-number", ["get", "tesis"]], 2],
-            "#fed976",
-            [">=", ["to-number", ["get", "tesis"]], 1],
-            "#ffffb2",
-            "#fff0",
-          ],
-        },
-      });
-      // Add polygons outline as new layer
-      map.value.addLayer({
-        id: "countries-boundaries",
+        id: "boundaries",
         type: "line",
         source: "countries",
         layout: {},
+        // properties
         paint: {
-          'line-color': '#000',
-          'line-width': [
+          "line-color": "#000",
+          "line-width": [
             "case",
-            ["==", ["to-number", ["get", "tesis"]], 0], 0,
+            ["==", ["to-number", ["get", "tesis"]], 0],
+            0,
             ["boolean", ["feature-state", "hover"], false],
             2,
-            1
+            1,
           ],
-        }
-      })      
+        },
+      });
+
+      map.value.addLayer({
+        id: "countries",
+        type: "fill",
+        source: "countries",
+        layout: {
+          visibility: isClustered.value ? "none" : "visible",
+        },
+        filter: [">", ["get", "tesis"], 0],
+        paint: countriesProperties,
+      });
+
+      map.value.addLayer({
+        id: "clusters",
+        type: "circle",
+        source: "clusters",
+        layout: {
+          visibility: isClustered.value ? "visible" : "none",
+        },
+        filter: [">", ["get", "tesis"], 0],
+        paint: clustersProperties,
+      });
+
+      map.value.addLayer({
+        id: "clusters-count",
+        type: "symbol",
+        source: "clusters",
+        filter: [">", ["get", "tesis"], 0],
+        layout: {
+          visibility: isClustered.value ? "visible" : "none",
+          "text-field": ["get", "tesis"],
+          "text-font": ["FiraSans-Bold"],
+          "text-size": 15,
+          "text-overlap": "always",
+        },
+        paint: {
+          "text-color": "#fff",
+        },
+      });
     }
 
     const debounce = (param) => {
-      window.clearTimeout(debounceTimer);
-      debounceTimer = setTimeout(
-        (features, lngLat) => {
-          handleMouseMove(features, lngLat);
-        },
-        10,
-        param.features,
-        param.lngLat
-      );
-      if (param.features.length > 0) {
-        if (hoveredStateId) {
-          map.value.setFeatureState(
-            { source: "countries", id: hoveredStateId },
-            { hover: false }
-          );
-        }
-        hoveredStateId = param.features[0].id;
-        map.value.setFeatureState(
-          { source: "countries", id: hoveredStateId },
-          { hover: true }
-        );
-      }
+      // window.clearTimeout(debounceTimer);
+      // debounceTimer = setTimeout(
+      //   (features, lngLat) => {
+      //     handleMouseMove(features, lngLat);
+      //   },
+      //   10,
+      //   param.features,
+      //   param.lngLat
+      // );
+      // if (param.features.length > 0) {
+      //   if (hoveredStateId) {
+      //     map.value.setFeatureState(
+      //       { source: "countries", id: hoveredStateId },
+      //       { hover: false }
+      //     );
+      //   }
+      //   hoveredStateId = param.features[0].id;
+      //   map.value.setFeatureState(
+      //     { source: "countries", id: hoveredStateId },
+      //     { hover: true }
+      //   );
+      // }
     };
 
     function handleMouseMove(features, lngLat) {
@@ -250,60 +270,12 @@ export default {
 
       var content = `
         <div class="popupTitle">
-          <div class="name">  ${features[0].properties.name} </div> 
+          <div class="name">  ${features[0].properties.name} </div>
           <div class="total">${features[0].properties.tesis}</div>
-        </div>`
+        </div>`;
 
-      const details = formatPopup(features[0].properties.abstract)
-      content += details
-
-      // var color1 = getRandomColor();
-      // var color2 = getRandomColor();
-      // var color3 = getRandomColor();
-      // var color4 = getRandomColor();
-      // var color5 = getRandomColor();
-      // var color6 = getRandomColor();
-
-      // var randomColors = [
-      //   "case",
-      //   [">", ["to-number", ["get", "tesis"]], 100],
-      //   color1,
-      //   [">", ["to-number", ["get", "tesis"]], 50],
-      //   color2,
-      //   [">=", ["to-number", ["get", "tesis"]], 10],
-      //   color3,
-      //   [">=", ["to-number", ["get", "tesis"]], 5],
-      //   color4,
-      //   [">=", ["to-number", ["get", "tesis"]], 0],
-      //   color5,
-      //   // ["==", ["to-number", ["get", "tesis"]], 1],
-      //   // color6,
-      //   "#fff0",
-      // ];
-      // if (features[0].properties.tesis > 50) {
-      //   map.value.setPaintProperty("countries-polygon", "fill-color", [
-      //     "case",
-      //     [">", ["to-number", ["get", "tesis"]], 1000],
-      //     "violet",
-      //     [">", ["to-number", ["get", "tesis"]], 30],
-      //     "red",
-      //     [">=", ["to-number", ["get", "tesis"]], 5],
-      //     "orange",
-      //     [">=", ["to-number", ["get", "tesis"]], 4],
-      //     "yellow",
-      //     [">=", ["to-number", ["get", "tesis"]], 2],
-      //     "green",
-      //     [">=", ["to-number", ["get", "tesis"]], 1],
-      //     "blue",
-      //     "#fff0",
-      //   ]);
-      // } else {
-      //   map.value.setPaintProperty(
-      //     "countries-polygon",
-      //     "fill-color",
-      //     randomColors
-      //   );
-      // }
+      const details = formatPopup(features[0].properties.abstract);
+      content += details;
 
       if (features[0].properties.tesis) {
         popup.setLngLat(lngLat).setHTML(content).addTo(map.value);
@@ -315,7 +287,8 @@ export default {
     return {
       map,
       mapContainer,
-      filterData
+      filterData,
+      toggleLayerType,
     };
   },
 };
@@ -326,7 +299,6 @@ export default {
   position: relative;
   width: 100%;
   height: 100vh;
-  /* height: calc(100vh - 77px); */
 }
 
 .map {
@@ -341,5 +313,4 @@ export default {
   bottom: 10px;
   z-index: 999;
 }
-
 </style>

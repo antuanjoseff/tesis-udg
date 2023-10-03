@@ -1,3 +1,5 @@
+import { api } from "src/boot/axios";
+
 const getRandomColor = () => {
   var letters = "0123456789ABCDEF";
   var color = "#";
@@ -62,92 +64,138 @@ const getCountryGeometry = (countriesData, code) => {
 };
 
 const getCountryAbstract = (tesis_list, code) => {
-  var total = 0
-  var abstract = {}
+  var total = 0;
+  var abstract = {};
   tesis_list.forEach((tesis) => {
-     if (tesis.iso3 === code){
-       total += 1
-       if (tesis.programa in abstract){
-        abstract[tesis.programa] += 1
+    if (tesis.iso_a3 === code) {
+      total += 1;
+      if (tesis.programa in abstract) {
+        abstract[tesis.programa] += 1;
       } else {
-        abstract[tesis.programa] = 1
+        abstract[tesis.programa] = 1;
       }
-    } 
+    }
   });
   // Create a table to sort it later
-  abstract =  Object.entries(abstract)
-  return {total, abstract}
+  abstract = Object.entries(abstract);
+  return { total, abstract };
 };
 
-const organizeTesisData = (tesis_list, filter='') => {
-  var result = {}
-  var programes = []
-  var data
-  
-  // Filter data if necessary
-  if (filter !== '') {    
-    data = tesis_list.filter((e) => {
-      return (e.programa.toUpperCase() == filter.toUpperCase())
-    })
+function sortCountries(a, b) {
+  if (a.total === b.total) {
+    return 0;
   } else {
-    data = tesis_list
+    return a.total < b.total ? 1 : -1;
   }
-  
+}
+
+const organizeTesisData = (tesis_list, filter = "") => {
+  var result = {};
+  var programes = [];
+  var data;
+
+  // Filter data if necessary
+  if (filter !== "") {
+    data = tesis_list.filter((e) => {
+      return e.programa.toUpperCase() == filter.toUpperCase();
+    });
+  } else {
+    data = tesis_list;
+  }
+
   data.forEach((tesis) => {
-    if (tesis.iso3 in result){
-      result[tesis.iso3].total += 1
-      if (programes.indexOf(tesis.programa) === -1) programes.push(tesis.programa)
-      
+    if (tesis.iso_a3 in result) {
+      result[tesis.iso_a3].total += 1;
+      if (programes.indexOf(tesis.programa) === -1)
+        programes.push(tesis.programa);
+
       // Check if tesis.programa is in 2D array
-      const index = result[tesis.iso3].abstract.findIndex((element) => {
-        return element[0].indexOf(tesis.programa) != -1
-      })
-      if (index !== -1){
-        result[tesis.iso3].abstract[index][1] += 1
+      const index = result[tesis.iso_a3].abstract.findIndex((element) => {
+        return element[0].indexOf(tesis.programa) != -1;
+      });
+      if (index !== -1) {
+        result[tesis.iso_a3].abstract[index][1] += 1;
       } else {
-        result[tesis.iso3].abstract.push([tesis.programa, 1])
+        result[tesis.iso_a3].abstract.push([tesis.programa, 1]);
       }
     } else {
-      result[tesis.iso3] = {
-          total: 1,
-          abstract: [[tesis.programa, 1]]
-       }
-     }
-
+      result[tesis.iso_a3] = {
+        total: 1,
+        abstract: [[tesis.programa, 1]],
+      };
+    }
   });
 
-  // Create a table to sort it later
-  return { programes: programes , paisos: result }
+  return { programes: programes, paisos: result };
 };
-
 
 const formatPopup = (obj) => {
   function sortFunction(a, b) {
     if (a[1] === b[1]) {
-        return 0;
-    }
-    else {
-        return (a[1] < b[1]) ? 1 : -1;
+      return 0;
+    } else {
+      return a[1] < b[1] ? 1 : -1;
     }
   }
-  var html = '<table>'
-  if (typeof(obj) === "string") {
-    const base = (JSON.parse(obj))
-    // Sort table 
-    base.sort(sortFunction)
-    base.forEach(function(programa) {
-      html += `<tr><td>${programa[0]}</td><td>${programa[1]}</td></tr>`
-    })
-  }
-  html += '</table>'
-  return html
-}
 
-export { 
+  var html = "<table>";
+  if (typeof obj === "string") {
+    const base = JSON.parse(obj);
+    // Sort table
+    base.sort(sortFunction);
+    base.forEach(function (programa) {
+      html += `<tr><td>${programa[0]}</td><td>${programa[1]}</td></tr>`;
+    });
+  }
+  html += "</table>";
+  return html;
+};
+
+const getData = async (url) => {
+  let data;
+  await api
+    .get(url)
+    .then((resp) => {
+      data = resp.data;
+    })
+    .catch((e) => {
+      console.log(e);
+      data = null;
+    });
+  return data;
+};
+
+function sortFeatures(a, b) {
+  if (a.properties.tesis === b.properties.tesis) {
+    return 0;
+  } else {
+    return a.properties.tesis < b.properties.tesis ? 1 : -1;
+  }
+}
+const addThesisDataTo = (data, thesisData) => {
+  data.features.forEach((element, idx) => {
+    var code = element.properties.iso_a3;
+    data.features[idx]["id"] = idx;
+    if (code in thesisData) {
+      data.features[idx].properties["tesis"] = thesisData[code].total;
+      data.features[idx].properties["abstract"] = thesisData[code].abstract;
+    } else {
+      data.features[idx].properties["tesis"] = 0;
+      data.features[idx].properties["abstract"] = null;
+    }
+  });
+
+  data.features.sort(sortFeatures);
+  return data;
+};
+
+export {
   getRandomColor,
   getBbox,
   getCountryGeometry,
   organizeTesisData,
   getCountryAbstract,
-  formatPopup
+  formatPopup,
+  getData,
+  addThesisDataTo,
 };
