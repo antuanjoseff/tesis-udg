@@ -93,6 +93,7 @@ const organizeTesisData = (tesis_list, filter = "") => {
   var result = {};
   var programes = [];
   var data;
+  var countryNames = []
 
   // Filter data if necessary
   if (filter !== "") {
@@ -106,6 +107,9 @@ const organizeTesisData = (tesis_list, filter = "") => {
   data.forEach((tesis) => {
     if (tesis.iso_a3 in result) {
       result[tesis.iso_a3].total += 1;
+      if (countryNames.indexOf(tesis.pais) === -1)
+      countryNames.push(tesis.pais);
+
       if (programes.indexOf(tesis.programa) === -1)
         programes.push(tesis.programa);
 
@@ -126,7 +130,7 @@ const organizeTesisData = (tesis_list, filter = "") => {
     }
   });
 
-  return { programes: programes, paisos: result };
+  return { programes: programes, paisos: result, countryNames};
 };
 
 const formatPopup = (obj) => {
@@ -176,12 +180,15 @@ const addThesisDataTo = (data, thesisData) => {
   data.features.forEach((element, idx) => {
     var code = element.properties.iso_a3;
     data.features[idx]["id"] = idx;
+    
     if (code in thesisData) {
       data.features[idx].properties["tesis"] = thesisData[code].total;
       data.features[idx].properties["abstract"] = thesisData[code].abstract;
+      data.features[idx].properties["pais"] = thesisData[code].pais;
     } else {
       data.features[idx].properties["tesis"] = 0;
       data.features[idx].properties["abstract"] = null;
+      data.features[idx].properties["pais"] = null;
     }
   });
 

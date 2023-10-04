@@ -1,0 +1,93 @@
+<template>
+  <div class="q-pa-md search-country">
+    <div class="q-gutter-md row">
+      <q-select
+        :model-value="model"
+        use-input
+        hide-selected
+        fill-input
+        rounded outlined
+        input-debounce="0"
+        :options="options"
+        @filter="filterFn"
+        @input-value="setModel"
+        style="width: 250px; padding-bottom: 32px"
+        bg-color="white"
+      >
+        <template v-slot:append>
+          <q-icon v-if="model !== ''" name="close" @click.stop.prevent="model = ''" class="cursor-pointer" />
+          <q-icon name="search" @click.stop.prevent />
+        </template>
+
+        <template v-slot:no-option>
+          <q-item>
+            <q-item-section class="text-grey">
+              No results
+            </q-item-section>
+          </q-item>
+        </template>
+      </q-select>
+    </div>
+  </div>
+</template>
+
+<script>
+import { useAppStore } from "../stores/appStore.js";
+import { computed, ref } from "vue";
+
+
+export default {
+  name: "SearchCountry",
+  emits: ["countrySelected"],
+  setup(props, context) { 
+    const appStore = useAppStore();
+    const model = ref(null);
+
+    const stringOptions = computed(() => {
+      return appStore.getCountryNames
+    })
+    const options = ref(JSON.stringify(stringOptions.value))
+    
+    // const stringOptions = [
+    //   'Google', 'Facebook', 'Twitter', 'Apple', 'Oracle'
+    // ].reduce((acc, opt) => {
+    //   for (let i = 1; i <= 5; i++) {
+    //     acc.push(opt + ' ' + i)
+    //   }
+    //   return acc
+    // }, [])
+    // const options = ref(stringOptions)
+    const countrySelected = (e) => {
+      context.emit("countrySelected");
+      appStore.setSelectedCountry(model.value);
+    };
+
+    const setModel = (val) => {
+        model.value = val
+      }
+
+    const filterFn = (val, update, abort) => {
+        update(() => {
+          const needle = val.toLocaleLowerCase()
+          options.value = stringOptions.value.filter(v => v.toLocaleLowerCase().indexOf(needle) > -1)
+        })
+    }
+
+    return {
+      model,
+      filterFn,
+      countrySelected,
+      setModel,
+      options
+    };
+  },
+};
+</script>
+
+<style scoped>
+.search-country{
+  position: absolute;
+  top: 20px;
+  right: 20px
+}
+</style>

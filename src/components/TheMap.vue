@@ -7,12 +7,14 @@
     /></a>
     <div class="map" ref="mapContainer"></div>
     <toggle-layer @toggleLayerType="toggleLayerType" />
+    <search-country></search-country>
   </div>
 </template>
 
 <script>
 import { useAppStore } from "../stores/appStore.js";
 import ToggleLayer from "components/ToggleLayer.vue";
+import SearchCountry from "components/SearchCountry.vue";
 import { Map, Popup, NavigationControl, LngLatBounds } from "maplibre-gl";
 import { shallowRef, onMounted, onUnmounted, markRaw, computed } from "vue";
 import {
@@ -28,11 +30,12 @@ import {
 import {
   clusters as clustersProperties,
   countries as countriesProperties,
+  uncluster as unclusteredProperties,
 } from "src/lib/paintProperties.js";
 
 export default {
   name: "TheMap",
-  components: { ToggleLayer },
+  components: { ToggleLayer, SearchCountry },
   setup() {
     const mapContainer = shallowRef(null);
     const map = shallowRef(null);
@@ -51,10 +54,14 @@ export default {
       if (isClustered.value) {
         map.value.setLayoutProperty("countries", "visibility", "none");
         map.value.setLayoutProperty("clusters", "visibility", "visible");
-        map.value.setLayoutProperty("clusters-count", "visibility", "visible");
+        map.value.setLayoutProperty("clustered-count", "visibility", "visible");
+        map.value.setLayoutProperty("unclustered-count", "visibility", "visible");
+        map.value.setLayoutProperty("unclustered-point", "visibility", "visible");
       } else {
         map.value.setLayoutProperty("clusters", "visibility", "none");
-        map.value.setLayoutProperty("clusters-count", "visibility", "none");
+        map.value.setLayoutProperty("clustered-count", "visibility", "none");
+        map.value.setLayoutProperty("unclustered-count", "visibility", "none");
+        map.value.setLayoutProperty("unclustered-point", "visibility", "none");
         map.value.setLayoutProperty("countries", "visibility", "visible");
       }
     };
@@ -78,7 +85,25 @@ export default {
           maxZoom: 4,
         })
       );
-      map.value.addControl(new NavigationControl());
+      const nav = new NavigationControl()
+      map.value.addControl(nav, 'top-left');
+
+      class GeocodeControl {
+        onAdd(map) {
+          const template = document.createElement("template");
+          template.innerHTML = `
+            <div id="geocode-container">
+              <input id="geocode-input" class="maplibregl-ctrl" type="text" placeholder="Enter an address or place e.g. 1 York St" size="50" />
+              <button id="geocode-button" class="maplibregl-ctrl">Geocode</button>
+            </div>
+          `;
+
+          return template.content;
+        }
+      }
+
+      // const geocodeControl = new GeocodeControl();
+      // map.value.addControl(geocodeControl, "top-right");
 
       map.value.once("load", async () => {
         // This code runs once the base style has finished loading.
@@ -98,10 +123,11 @@ export default {
         thesisData = organizeTesisData(originalData);
         thesisCountries = thesisData.paisos;
         appStore.setProgrames(thesisData.programes.sort());
+        appStore.setCountryNames(thesisData.countryNames.sort());
 
         countriesData = addThesisDataTo(countriesData, thesisCountries);
         centroidsData = addThesisDataTo(centroidsData, thesisCountries);
-
+        
         // Sort data to first draw bigger circles
         countriesData.features.sort((a, b) => {
           if (a.properties.tesis === b.properties.tesis) {
@@ -115,13 +141,22 @@ export default {
         map.value.addSource("countries", {
           type: "geojson",
           data: countriesData,
+          clusterProperties: {
+            sum: ["+", ["get", "tesis"]],
+          },
         });
 
         map.value.addSource("clusters", {
           type: "geojson",
           data: centroidsData,
+          cluster: true,
+          clusterMaxZoom: 14,
+          clusterRadius: 50,
+          clusterProperties: {
+            'sum': ['+', ["get", "tesis"]]
+          }
+          
         });
-
         addLayersToMap();
       });
 
@@ -211,33 +246,54 @@ export default {
         paint: countriesProperties,
       });
 
+      // UNCLUSTERED
       map.value.addLayer({
-        id: "clusters",
-        type: "circle",
-        source: "clusters",
-        layout: {
-          visibility: isClustered.value ? "visible" : "none",
-        },
-        filter: [">", ["get", "tesis"], 0],
-        paint: clustersProperties,
+          id: 'unclustered-point',
+          type: 'circle',
+          source: 'clusters',
+          filter: ['>', ['get', 'tesis'], 0],
+          paint: unclusteredProperties
+      })
+
+      map.value.addLayer({
+          id: 'unclustered-count',
+          type: 'symbol',
+          source: 'clusters',
+          filter: ['>', ['get', 'tesis'], 0],
+          layout: {
+            'text-field': ["get", "tesis"],
+            "text-font": ["FiraSans-Bold"],
+            'text-size': 14,
+          },
+          paint: {
+            'text-color': '#fff'
+          }
+      });      
+
+      // CLUSTERED
+      map.value.addLayer({
+          id: 'clusters',
+          type: 'circle',
+          source: 'clusters',
+          filter: ['>', ['get', 'sum'], 0],
+          paint: clustersProperties
       });
 
       map.value.addLayer({
-        id: "clusters-count",
-        type: "symbol",
-        source: "clusters",
-        filter: [">", ["get", "tesis"], 0],
-        layout: {
-          visibility: isClustered.value ? "visible" : "none",
-          "text-field": ["get", "tesis"],
-          "text-font": ["FiraSans-Bold"],
-          "text-size": 15,
-          "text-overlap": "always",
-        },
-        paint: {
-          "text-color": "#fff",
-        },
-      });
+          id: 'clustered-count',
+          type: 'symbol',
+          source: 'clusters',
+          filter: ['>', ['get', 'sum'], 0],
+          layout: {
+            // 'text-field': '{point_count_abbreviated}',
+            "text-field": ["get", "sum"],
+            "text-font": ["FiraSans-Bold"],
+            'text-size': 14,
+          },
+          paint: {
+            'text-color': '#fff'
+          }
+      });      
     }
 
     const debounce = (param) => {
@@ -312,5 +368,19 @@ export default {
   left: 10px;
   bottom: 10px;
   z-index: 999;
+}
+
+#geocode-container {
+  display: inline-flex;
+  margin: 20px;
+}
+#geocode-input,
+#geocode-button {
+  font-size: 16px;
+  margin: 0 2px 0 0;
+  padding: 4px 8px;
+}
+#geocode-input {
+  width: 300px;
 }
 </style>
