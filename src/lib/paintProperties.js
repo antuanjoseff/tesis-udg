@@ -1,5 +1,5 @@
 const clusterColor = "#CA6D51";
-const unclusterColor = "#CACA51";
+const unclusterColor = "#CA6D51";
 
 const uncluster = {
   'circle-color': unclusterColor,
@@ -35,22 +35,21 @@ const clusters = {
   ]
 }
 
+// Menys de 10 tesis>> #F3F6E0
+// De 10 a 20 tesis>> #FCE5A2
+// De 21 a 60 tesis>> #F9D465
+// Més de 60 tesis >> #F6BA08
+
 const countries = {
   "fill-color": [
     "case",
-    [">", ["to-number", ["get", "tesis"]], 1000],
-    "#bd0026",
-    [">", ["to-number", ["get", "tesis"]], 30],
-    "#f03b20",
-    [">=", ["to-number", ["get", "tesis"]], 5],
-    "#fd8d3c",
-    [">=", ["to-number", ["get", "tesis"]], 4],
-    "#feb24c",
-    [">=", ["to-number", ["get", "tesis"]], 2],
-    "#fed976",
-    [">=", ["to-number", ["get", "tesis"]], 1],
-    "#ffffb2",
-    "#fff0",
+    [">", ["to-number", ["get", "tesis"]], 60],
+    "#F6BA08",
+    [">", ["to-number", ["get", "tesis"]], 21],
+    "#F9D465",
+    [">=", ["to-number", ["get", "tesis"]], 10],
+    "#FCE5A2",
+    "#F3F6E0"    
   ],
   "fill-opacity": 0.8,
 };

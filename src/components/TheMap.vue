@@ -7,7 +7,9 @@
     /></a>
     <div class="map" ref="mapContainer"></div>
     <toggle-layer @toggleLayerType="toggleLayerType" />
-    <search-country></search-country>
+    <search-country
+      @countrySelected="countrySelected"
+    />
   </div>
 </template>
 
@@ -168,11 +170,7 @@ export default {
 
       map.value.on("click", "countries", (e) => {
         const code = e.features[0].properties.adm0_a3;
-        const countryGeom = getCountryGeometry(countriesData, code);
-        const bounds = getBbox(countryGeom);
-        map.value.fitBounds(bounds, {
-          padding: 20,
-        });
+        flyToCountry(code)
       });
 
       map.value.on("mousemove", "countries", debounce);
@@ -340,11 +338,26 @@ export default {
       }
     }
 
+    const flyToCountry = (code) => {
+        const countryGeom = getCountryGeometry(countriesData, code.toUpperCase());
+        const bounds = getBbox(countryGeom);
+        map.value.fitBounds(bounds, {
+          padding: 20,
+        });
+    }
+
+    const countrySelected = (code) => {
+      if (code.length) {
+        flyToCountry(code)
+      }
+    }
+
     return {
       map,
       mapContainer,
       filterData,
       toggleLayerType,
+      countrySelected
     };
   },
 };

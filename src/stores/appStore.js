@@ -19,6 +19,7 @@ export const useAppStore = defineStore("counter", {
     getSelectedCountry: (state) => state.selectedCountry,
 
     getCountryNames: (state) => state.countryNames,
+
   },
 
   actions: {
@@ -31,7 +32,6 @@ export const useAppStore = defineStore("counter", {
     },
 
     setCountryNames(countries) {
-      console.log(countries)
       this.countryNames = countries;
     },
 

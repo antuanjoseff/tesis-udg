@@ -1,4 +1,5 @@
 import { api } from "src/boot/axios";
+import { countries } from "./paintProperties";
 
 const getRandomColor = () => {
   var letters = "0123456789ABCDEF";
@@ -52,11 +53,12 @@ const getBbox = (geometry) => {
 };
 
 const getCountryGeometry = (countriesData, code) => {
-  const index = countriesData.features.findIndex((feature, idx) => {
+  let index = -1
+  index = countriesData.features.findIndex((feature, idx) => {
     return countriesData.features[idx].properties.adm0_a3 === code;
   });
 
-  if (index) {
+  if (index!=-1) {
     return countriesData.features[index].geometry;
   } else {
     return undefined;
@@ -93,6 +95,7 @@ const organizeTesisData = (tesis_list, filter = "") => {
   var result = {};
   var programes = [];
   var data;
+  var names = []
   var countryNames = []
 
   // Filter data if necessary
@@ -107,11 +110,17 @@ const organizeTesisData = (tesis_list, filter = "") => {
   data.forEach((tesis) => {
     if (tesis.iso_a3 in result) {
       result[tesis.iso_a3].total += 1;
-      if (countryNames.indexOf(tesis.pais) === -1)
-      countryNames.push(tesis.pais);
+      if (names.indexOf(tesis.pais) === -1) {
+        names.push(tesis.pais);
+        countryNames.push({
+          label: tesis.pais,
+          value: tesis.iso_a3
+        })
+      }
 
-      if (programes.indexOf(tesis.programa) === -1)
+      if (programes.indexOf(tesis.programa) === -1) {
         programes.push(tesis.programa);
+      }
 
       // Check if tesis.programa is in 2D array
       const index = result[tesis.iso_a3].abstract.findIndex((element) => {

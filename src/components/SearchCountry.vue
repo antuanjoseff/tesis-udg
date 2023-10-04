@@ -3,6 +3,8 @@
     <div class="q-gutter-md row">
       <q-select
         :model-value="model"
+        option-value="value"
+        option-label="label"        
         use-input
         hide-selected
         fill-input
@@ -47,7 +49,6 @@ export default {
       return appStore.getCountryNames
     })
     const options = ref(JSON.stringify(stringOptions.value))
-    
     // const stringOptions = [
     //   'Google', 'Facebook', 'Twitter', 'Apple', 'Oracle'
     // ].reduce((acc, opt) => {
@@ -62,14 +63,33 @@ export default {
       appStore.setSelectedCountry(model.value);
     };
 
+    const getCountryCodeFromName = ((name) => {
+      let idx = -1
+      let countries = JSON.parse(JSON.stringify(stringOptions.value))
+      
+      idx = countries.findIndex((c) => {
+        return c.label.toLocaleLowerCase() === name.toLocaleLowerCase()
+      })
+      if (idx != -1) {
+        return stringOptions.value[idx].value
+      } else {
+        return ''
+      }
+    })
+
     const setModel = (val) => {
+        if (val.length) {
+          let selected = getCountryCodeFromName(val)
+          appStore.setSelectedCountry(selected)
+          context.emit('countrySelected', selected.toLocaleLowerCase())
+        }
         model.value = val
       }
 
     const filterFn = (val, update, abort) => {
         update(() => {
           const needle = val.toLocaleLowerCase()
-          options.value = stringOptions.value.filter(v => v.toLocaleLowerCase().indexOf(needle) > -1)
+          options.value = stringOptions.value.filter(v => v.label.toLocaleLowerCase().indexOf(needle) > -1)
         })
     }
 
