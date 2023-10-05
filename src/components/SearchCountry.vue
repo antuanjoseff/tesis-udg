@@ -4,11 +4,12 @@
       <q-select
         :model-value="model"
         option-value="value"
-        option-label="label"        
+        option-label="label"
         use-input
         hide-selected
         fill-input
-        rounded outlined
+        rounded
+        outlined
         input-debounce="0"
         :options="options"
         @filter="filterFn"
@@ -17,15 +18,18 @@
         bg-color="white"
       >
         <template v-slot:append>
-          <q-icon v-if="model !== ''" name="close" @click.stop.prevent="model = ''" class="cursor-pointer" />
+          <q-icon
+            v-if="model !== ''"
+            name="close"
+            @click.stop.prevent="model = ''"
+            class="cursor-pointer"
+          />
           <q-icon name="search" @click.stop.prevent />
         </template>
 
         <template v-slot:no-option>
           <q-item>
-            <q-item-section class="text-grey">
-              No results
-            </q-item-section>
+            <q-item-section class="text-grey"> No results </q-item-section>
           </q-item>
         </template>
       </q-select>
@@ -37,18 +41,17 @@
 import { useAppStore } from "../stores/appStore.js";
 import { computed, ref } from "vue";
 
-
 export default {
   name: "SearchCountry",
   emits: ["countrySelected"],
-  setup(props, context) { 
+  setup(props, context) {
     const appStore = useAppStore();
-    const model = ref(null);
+    const model = ref("");
 
     const stringOptions = computed(() => {
-      return appStore.getCountryNames
-    })
-    const options = ref(JSON.stringify(stringOptions.value))
+      return appStore.getCountryNames;
+    });
+    const options = ref(JSON.stringify(stringOptions.value));
     // const stringOptions = [
     //   'Google', 'Facebook', 'Twitter', 'Apple', 'Oracle'
     // ].reduce((acc, opt) => {
@@ -63,51 +66,53 @@ export default {
       appStore.setSelectedCountry(model.value);
     };
 
-    const getCountryCodeFromName = ((name) => {
-      let idx = -1
-      let countries = JSON.parse(JSON.stringify(stringOptions.value))
-      
+    const getCountryCodeFromName = (name) => {
+      let idx = -1;
+      let countries = JSON.parse(JSON.stringify(stringOptions.value));
+
       idx = countries.findIndex((c) => {
-        return c.label.toLocaleLowerCase() === name.toLocaleLowerCase()
-      })
+        return c.label.toLocaleLowerCase() === name.toLocaleLowerCase();
+      });
       if (idx != -1) {
-        return stringOptions.value[idx].value
+        return stringOptions.value[idx].value;
       } else {
-        return ''
+        return "";
       }
-    })
+    };
 
     const setModel = (val) => {
-        if (val.length) {
-          let selected = getCountryCodeFromName(val)
-          appStore.setSelectedCountry(selected)
-          context.emit('countrySelected', selected.toLocaleLowerCase())
-        }
-        model.value = val
+      if (val.length) {
+        let selected = getCountryCodeFromName(val);
+        appStore.setSelectedCountry(selected);
+        context.emit("countrySelected", selected.toLocaleLowerCase());
       }
+      model.value = val;
+    };
 
     const filterFn = (val, update, abort) => {
-        update(() => {
-          const needle = val.toLocaleLowerCase()
-          options.value = stringOptions.value.filter(v => v.label.toLocaleLowerCase().indexOf(needle) > -1)
-        })
-    }
+      update(() => {
+        const needle = val.toLocaleLowerCase();
+        options.value = stringOptions.value.filter(
+          (v) => v.label.toLocaleLowerCase().indexOf(needle) > -1
+        );
+      });
+    };
 
     return {
       model,
       filterFn,
       countrySelected,
       setModel,
-      options
+      options,
     };
   },
 };
 </script>
 
 <style scoped>
-.search-country{
+.search-country {
   position: absolute;
   top: 20px;
-  right: 20px
+  right: 20px;
 }
 </style>

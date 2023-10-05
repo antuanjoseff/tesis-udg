@@ -53,12 +53,12 @@ const getBbox = (geometry) => {
 };
 
 const getCountryGeometry = (countriesData, code) => {
-  let index = -1
+  let index = -1;
   index = countriesData.features.findIndex((feature, idx) => {
     return countriesData.features[idx].properties.adm0_a3 === code;
   });
 
-  if (index!=-1) {
+  if (index != -1) {
     return countriesData.features[index].geometry;
   } else {
     return undefined;
@@ -83,20 +83,12 @@ const getCountryAbstract = (tesis_list, code) => {
   return { total, abstract };
 };
 
-function sortCountries(a, b) {
-  if (a.total === b.total) {
-    return 0;
-  } else {
-    return a.total < b.total ? 1 : -1;
-  }
-}
-
 const organizeTesisData = (tesis_list, filter = "") => {
   var result = {};
   var programes = [];
   var data;
-  var names = []
-  var countryNames = []
+  var names = [];
+  var countryNames = [];
 
   // Filter data if necessary
   if (filter !== "") {
@@ -110,15 +102,15 @@ const organizeTesisData = (tesis_list, filter = "") => {
   data.forEach((tesis) => {
     if (tesis.iso_a3 in result) {
       result[tesis.iso_a3].total += 1;
-      if (names.indexOf(tesis.pais) === -1) {
+      if (!names.includes(tesis.pais)) {
         names.push(tesis.pais);
         countryNames.push({
           label: tesis.pais,
-          value: tesis.iso_a3
-        })
+          value: tesis.iso_a3,
+        });
       }
 
-      if (programes.indexOf(tesis.programa) === -1) {
+      if (!programes.includes(tesis.programa)) {
         programes.push(tesis.programa);
       }
 
@@ -139,7 +131,10 @@ const organizeTesisData = (tesis_list, filter = "") => {
     }
   });
 
-  return { programes: programes, paisos: result, countryNames};
+  // Sourt countries
+  countryNames.sort((a, b) => a.label.localeCompare(b.label, "ca"));
+
+  return { programes: programes, paisos: result, countryNames };
 };
 
 const formatPopup = (obj) => {
@@ -172,7 +167,6 @@ const getData = async (url) => {
       data = resp.data;
     })
     .catch((e) => {
-      console.log(e);
       data = null;
     });
   return data;
@@ -189,7 +183,7 @@ const addThesisDataTo = (data, thesisData) => {
   data.features.forEach((element, idx) => {
     var code = element.properties.iso_a3;
     data.features[idx]["id"] = idx;
-    
+
     if (code in thesisData) {
       data.features[idx].properties["tesis"] = thesisData[code].total;
       data.features[idx].properties["abstract"] = thesisData[code].abstract;

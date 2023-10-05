@@ -1,7 +1,7 @@
 <template>
   <div class="app">
-    <NavBar @clickPrograme="clickPrograme"/>
-    <TheMap ref="MAP"/>
+    <NavBar @clickPrograme="clickPrograme" @resetFilter="resetFilter" />
+    <TheMap ref="MAP" />
   </div>
 </template>
 
@@ -9,7 +9,7 @@
 import NavBar from "components/NavBar.vue";
 import TheMap from "components/TheMap.vue";
 import "maplibre-gl/dist/maplibre-gl.css";
-import { ref } from 'vue'
+import { ref } from "vue";
 export default {
   name: "App",
   components: {
@@ -17,15 +17,22 @@ export default {
     TheMap,
   },
   setup() {
-    const MAP = ref()
+    const MAP = ref();
+
     const clickPrograme = (e) => {
-      MAP.value.filterData(e)
-    }
+      MAP.value.filterData(e);
+    };
+
+    const resetFilter = (e) => {
+      MAP.value.resetFilter();
+    };
+
     return {
       MAP,
-      clickPrograme
-    }
-  }
+      clickPrograme,
+      resetFilter,
+    };
+  },
 };
 </script>
 
