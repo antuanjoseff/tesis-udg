@@ -16,6 +16,8 @@
     "@quasar/extras": "^1.16.4",
     "@turf/turf": "^6.5.0",
     "axios": "^1.2.1",
+    "chart.js": "^4.4.0",
+    "chartjs": "^0.3.24",
     "install": "^0.13.0",
     "maplibre-gl": "^3.3.1",
     "pinia": "^2.0.11",

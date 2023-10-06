@@ -52,15 +52,7 @@ export default {
       return appStore.getCountryNames;
     });
     const options = ref(JSON.stringify(stringOptions.value));
-    // const stringOptions = [
-    //   'Google', 'Facebook', 'Twitter', 'Apple', 'Oracle'
-    // ].reduce((acc, opt) => {
-    //   for (let i = 1; i <= 5; i++) {
-    //     acc.push(opt + ' ' + i)
-    //   }
-    //   return acc
-    // }, [])
-    // const options = ref(stringOptions)
+
     const countrySelected = (e) => {
       context.emit("countrySelected");
       appStore.setSelectedCountry(model.value);

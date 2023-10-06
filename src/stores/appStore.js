@@ -2,13 +2,16 @@ import { defineStore } from "pinia";
 
 export const useAppStore = defineStore("counter", {
   state: () => ({
-    clustered: true,
+    // Initial map view mode
+    clustered: false,
 
     programes: [],
 
     countryNames: [],
     
-    selectedCountry: {}
+    selectedCountry: {},
+
+    countryModalVisibility:  false,
   }),
 
   getters: {
@@ -19,6 +22,8 @@ export const useAppStore = defineStore("counter", {
     getSelectedCountry: (state) => state.selectedCountry,
 
     getCountryNames: (state) => state.countryNames,
+
+    getCountryModalVisibility: (state) => state.countryModalVisibility,
 
   },
 
@@ -37,6 +42,10 @@ export const useAppStore = defineStore("counter", {
 
     setSelectedCountry(country) {
       this.selectedCountry = country;
+    },
+
+    setCountryModalVisibility(visibility) {
+      this.countryModalVisibility = visibility;
     },
   },
 });
