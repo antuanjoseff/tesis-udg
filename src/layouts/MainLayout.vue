@@ -25,11 +25,11 @@ export default {
     const MAP = ref();
 
     const clickPrograme = (e) => {
-      MAP.value.filterData(e);
+      MAP.value.handleFilter(e);
     };
 
     const resetFilter = (e) => {
-      MAP.value.resetFilter();
+      MAP.value.handleResetFilter();
     };
 
     return {

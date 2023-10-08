@@ -9,51 +9,6 @@ import {
   getCountryGeometry,
 } from "src/lib/utils.js"
 
-const filterData = async (filter) => {
-    filter = filter.toLowerCase();
-
-    var schema = {
-      type: "FeatureCollection",
-      features: [],
-    };
-    var centroids = schema;
-    var countries = schema;
-    var filterFeatures;
-    var filteredCountries = [];
-    filterFeatures = centroidsData.features.filter((e) => {
-      if (e.properties.abstract) {
-        return e.properties.abstract.some((s) => {
-          return s[0].toLowerCase().includes(filter);
-        });
-      }
-    });
-
-    centroids.features = filterFeatures;
-    map.value.getSource("clusters").setData(centroids);
-
-    filterFeatures = countriesData.features.filter((e) => {
-      if (e.properties.abstract) {
-        return e.properties.abstract.some((s) => {
-          if (s[0].toLowerCase().includes(filter)) {
-            if (!filteredCountries.includes(e.properties.iso_a3)) {
-              filteredCountries.push(e.properties.iso_a3);
-            }
-          }
-          return s[0].toLowerCase().includes(filter);
-        });
-      }
-    });
-
-    countries.features = filterFeatures;
-    map.value.getSource("countries").setData(countries);
-
-    // Update countryNames from filtered thesis
-    var filteredCountryNames = thesisData.countryNames.filter((f) => {
-      return filteredCountries.includes(f.value);
-    });
-    appStore.setCountryNames(filteredCountryNames);
-  };
-
   function addLayersToMap(map, isClustered) {
     // COUNTRIES
     map.value.addLayer({
@@ -154,15 +109,7 @@ const filterData = async (filter) => {
   };
 
 
-  const resetFilter = (code) => {
-    map.value.getSource("clusters").setData(centroidsData);
-    map.value.getSource("countries").setData(countriesData);
-    appStore.setCountryNames(thesisData.countryNames);
-  };
-
-  export {
-    filterData,
-    addLayersToMap,
-    flyToCountry,
-    resetFilter
-  }
+    export {
+      addLayersToMap,
+      flyToCountry,
+    }

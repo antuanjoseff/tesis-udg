@@ -18,10 +18,8 @@ import SearchCountry from "components/SearchCountry.vue";
 import { Map, Popup, NavigationControl, LngLatBounds } from "maplibre-gl";
 import { shallowRef, onMounted, onUnmounted, markRaw, computed } from "vue";
 import {
-  filterData,
   addLayersToMap,
-  flyToCountry,
-  resetFilter  
+  flyToCountry
 } from "src/lib/maplib.js";
 import {
   organizeTesisData,
@@ -250,13 +248,78 @@ export default {
         flyToCountry(map, countriesData, code);
       }
     };
+
+    const handleFilter = (filter) => {
+      filter = filter.toLowerCase();
+      var schema = {
+        type: "FeatureCollection",
+        features: [],
+      };
+      var centroids = schema;
+      var countries = schema;
+      var filterFeatures;
+      var filteredCountries = [];
+      var nTesis = 0
+      // Get only countries with specifi programs and update tesis property
+      const cloned = JSON.parse(JSON.stringify(centroidsData))
+      filterFeatures = cloned.features.filter((e) => {
+        if (e.properties.abstract) {
+          const idx = e.properties.abstract.findIndex((s) => {
+            return s[0].toLowerCase().includes(filter);
+          });
+          if (idx !== -1) {
+            nTesis = e.properties.abstract[idx][1]
+            e.properties.tesis = nTesis
+            // Features passes filtering
+            return true
+          }
+          // Features does not pass filtering
+          return false
+        }
+      });
+
+      centroids.features = filterFeatures;
+      map.value.getSource("clusters").setData(centroids);
+
+      filterFeatures = countriesData.features.filter((e) => {
+        if (e.properties.abstract) {
+          return e.properties.abstract.some((s) => {
+            if (s[0].toLowerCase().includes(filter)) {
+              if (!filteredCountries.includes(e.properties.iso_a3)) {
+                filteredCountries.push(e.properties.iso_a3);
+              }
+            }
+            return s[0].toLowerCase().includes(filter);
+          });
+        }
+      });
+
+      countries.features = filterFeatures;
+      map.value.getSource("countries").setData(countries);
+
+      // Update countryNames from filtered thesis
+      var filteredCountryNames = thesisData.countryNames.filter((f) => {
+        return filteredCountries.includes(f.value);
+      });
+      appStore.setCountryNames(filteredCountryNames);   
+      console.log(countries.features)  
+      console.log(countriesData.features)  
+    }
+
+    const handleResetFilter = () => {
+      map.value.getSource("clusters").setData(centroidsData);
+      map.value.getSource("countries").setData(countriesData);
+      appStore.setCountryNames(thesisData.countryNames);
+     
+    }
+
     return {
       map,
       mapContainer,
-      filterData,
+      handleFilter,
       toggleLayerType,
       countrySelected,
-      resetFilter,
+      handleResetFilter,
     };
   },
 };
