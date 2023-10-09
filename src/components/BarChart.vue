@@ -37,7 +37,7 @@ export default {
           beginAtZero: true,
           ticks: {
             font: {
-              size: 20, //this change the font size
+              size: 10, //this change the font size
             },
           },
         },
@@ -52,11 +52,12 @@ export default {
       let labels, datasets;
       let missing = [];
       if (props.data) {
-        let arr = JSON.parse(props.data);
+        // let arr = JSON.parse(props.data);
+        let arr = JSON.parse(JSON.stringify(props.data.programs));
 
         programes.value.forEach((p) => {
           const found = arr.find((a) => {
-            return p === a[0];
+            return p === a.name;
           });
           if (!found) {
             missing.push([p, 0]);
@@ -67,18 +68,20 @@ export default {
         //   arr.concat(missing)
         // }
         // arr = [...arr, ...missing]
-        arr.sort((a, b) => (a[0] < b[0] ? 1 : -1));
+        arr.sort((a, b) => (a.count < b.count ? 1 : -1));
         labels = arr.map((programa) => {
-          return programa[0];
+          return programa.name;
         });
 
         datasets = arr.map((programa) => {
-          return programa[1];
+          return programa.count;
         });
-        chartHeight.value = labels.length * 50;
+
+        chartHeight.value = labels.length * 12;
       }
 
       const ctx = document.getElementById("myChart");
+      ctx.height = chartHeight.value;
 
       const myChart = new Chart(ctx, {
         type: "bar",
@@ -105,7 +108,7 @@ export default {
 </script>
 <style scoped>
 canvas {
-  padding: 0 100px;
+  padding: 0 20px;
 }
 .chart-container {
   border: 1px solid #11172b;
