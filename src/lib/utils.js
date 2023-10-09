@@ -100,33 +100,53 @@ const organizeTesisData = (tesis_list, filter = "") => {
   }
 
   data.forEach((tesis) => {
-    if (tesis.iso_a3 in result) {
-      result[tesis.iso_a3].total += 1;
-      if (!names.includes(tesis.pais)) {
-        names.push(tesis.pais);
-        countryNames.push({
-          label: tesis.pais,
-          value: tesis.iso_a3,
-        });
-      }
-
-      if (!programes.includes(tesis.programa)) {
-        programes.push(tesis.programa);
-      }
-
-      // Check if tesis.programa is in 2D array
-      const index = result[tesis.iso_a3].abstract.findIndex((element) => {
-        return element[0].indexOf(tesis.programa) != -1;
+    if (tesis.PaisCodi in result) {
+      result[tesis.PaisCodi].count += 1;
+      // Check if Pla already exists
+      const programs = result[tesis.PaisCodi].programs;
+      const idxProgram = programs.findIndex((p) => {
+        return p.name === tesis.Pla;
       });
-      if (index !== -1) {
-        result[tesis.iso_a3].abstract[index][1] += 1;
+      if (idxProgram !== -1) {
+        result[tesis.PaisCodi].programs.push({
+          name: tesis.Pla,
+          count: 1,
+          LR: {
+            name: data.LiniaRecerca,
+            count: data.LiniaRecerca !== "" ? 1 : 0,
+          },
+        });
       } else {
-        result[tesis.iso_a3].abstract.push([tesis.programa, 1]);
+        result[tesis.PaisCodi].programs[idxPrograms].count += 1;
+        //Check if LR already exists
+        const LR = result[tesis.PaisCodi].programs[idxPrograms].LR;
+        const idxLR = LR.find((lr) => {
+          return lr.name === tesis.LiniaRecerca && tesis.LiniaRecerca !== "";
+        });
+        if (idxLR !== -1) {
+          result[tesis.PaisCodi].programs[idxPrograms].LR[idxLR].count += 1;
+        } else {
+          result[tesis.PaisCodi].programs[idxPrograms].LR.push({
+            name: tesis.LiniaRecerca,
+            count: data.LiniaRecerca !== "" ? 1 : 0,
+          });
+        }
       }
     } else {
-      result[tesis.iso_a3] = {
-        total: 1,
-        abstract: [[tesis.programa, 1]],
+      result[tesis.PaisCodi] = {
+        count: 1,
+        programs: [
+          {
+            name: data.Pla,
+            count: data.Pla !== "" ? 1 : 0,
+            LR: [
+              {
+                name: data.LiniaRecerca,
+                count: data.LiniaRecerca !== "" ? 1 : 0,
+              },
+            ],
+          },
+        ],
       };
     }
   });

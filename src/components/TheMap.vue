@@ -17,15 +17,8 @@ import ToggleLayer from "components/ToggleLayer.vue";
 import SearchCountry from "components/SearchCountry.vue";
 import { Map, Popup, NavigationControl, LngLatBounds } from "maplibre-gl";
 import { shallowRef, onMounted, onUnmounted, markRaw, computed } from "vue";
-import {
-  addLayersToMap,
-  flyToCountry
-} from "src/lib/maplib.js";
-import {
-  organizeTesisData,
-  getData,
-  addThesisDataTo,
-} from "src/lib/utils.js";
+import { addLayersToMap, flyToCountry } from "src/lib/maplib.js";
+import { organizeTesisData, getData, addThesisDataTo } from "src/lib/utils.js";
 
 export default {
   name: "TheMap",
@@ -115,7 +108,7 @@ export default {
         // This code runs once the base style has finished loading.
         const name_expr = ["get", "name"];
         var thesisUrl = process.env.DEV
-          ? "/tesis_llista.json"
+          ? "/tesis_api.json"
           : "//sigserver4.udg.edu/tesis/spa/tesis_totals.json";
 
         var centroidsUrl = "/centroids.json";
@@ -172,14 +165,14 @@ export default {
       });
 
       map.value.on("click", "countries", (e) => {
-        const selected = e.features[0]
+        const selected = e.features[0];
         const code = selected.properties.iso_a3;
         const abstract = selected.properties.abstract;
         const nTesis = selected.properties.tesis;
 
         // flyToCountry(map, countriesData, code);
-        appStore.setSelectedCountry({code, abstract, nTesis})
-        appStore.setCountryModalVisibility(true)
+        appStore.setSelectedCountry({ code, abstract, nTesis });
+        appStore.setCountryModalVisibility(true);
       });
 
       map.value.on("mousemove", "countries", debounce);
@@ -201,7 +194,6 @@ export default {
       onUnmounted(() => {
         map.value?.remove();
       });
-
 
     const debounce = (param) => {
       window.clearTimeout(debounceTimer);
@@ -259,22 +251,22 @@ export default {
       var countries = schema;
       var filterFeatures;
       var filteredCountries = [];
-      var nTesis = 0
+      var nTesis = 0;
       // Get only countries with specifi programs and update tesis property
-      const cloned = JSON.parse(JSON.stringify(centroidsData))
+      const cloned = JSON.parse(JSON.stringify(centroidsData));
       filterFeatures = cloned.features.filter((e) => {
         if (e.properties.abstract) {
           const idx = e.properties.abstract.findIndex((s) => {
             return s[0].toLowerCase().includes(filter);
           });
           if (idx !== -1) {
-            nTesis = e.properties.abstract[idx][1]
-            e.properties.tesis = nTesis
+            nTesis = e.properties.abstract[idx][1];
+            e.properties.tesis = nTesis;
             // Features passes filtering
-            return true
+            return true;
           }
           // Features does not pass filtering
-          return false
+          return false;
         }
       });
 
@@ -301,17 +293,16 @@ export default {
       var filteredCountryNames = thesisData.countryNames.filter((f) => {
         return filteredCountries.includes(f.value);
       });
-      appStore.setCountryNames(filteredCountryNames);   
-      console.log(countries.features)  
-      console.log(countriesData.features)  
-    }
+      appStore.setCountryNames(filteredCountryNames);
+      console.log(countries.features);
+      console.log(countriesData.features);
+    };
 
     const handleResetFilter = () => {
       map.value.getSource("clusters").setData(centroidsData);
       map.value.getSource("countries").setData(countriesData);
       appStore.setCountryNames(thesisData.countryNames);
-     
-    }
+    };
 
     return {
       map,

@@ -1,7 +1,7 @@
 <template>
-<div class="chart-container">
-  <canvas id="myChart"></canvas>
-</div>
+  <div class="chart-container">
+    <canvas id="myChart"></canvas>
+  </div>
   <!-- <div class="text-center chart-container">
     <div>
     </div>
@@ -9,103 +9,105 @@
 </template>
 
 <script>
-import { Chart } from 'chart.js/auto'
-import { ref, onMounted, computed } from 'vue'
+import { Chart } from "chart.js/auto";
+import { ref, onMounted, computed } from "vue";
 import { useAppStore } from "../stores/appStore.js";
 
 export default {
-  name: 'BarChart',
-  props: ['data', 'num'],
-  setup(props){
+  name: "BarChart",
+  props: ["data", "num"],
+  setup(props) {
     const appStore = useAppStore();
-    const chartHeight = ref()
+    const chartHeight = ref();
     const options = {
-        plugins: {
-          legend: {
-            display: false
+      plugins: {
+        legend: {
+          display: false,
+        },
+      },
+      indexAxis: "y",
+      scales: {
+        x: {
+          max: props.num + 2,
+          ticks: {
+            precision: 0,
           },
         },
-        indexAxis: 'y',
-        scales: {
-          x: {
-            max: props.num + 2,
-            ticks: {
-                precision:0
-            }
+        y: {
+          beginAtZero: true,
+          ticks: {
+            font: {
+              size: 20, //this change the font size
+            },
           },
-          y: {
-            beginAtZero: true,
-            ticks: {             
-                font: {
-                 size: 20 //this change the font size
-                }
-            }
-          }
-        }
-      }
+        },
+      },
+    };
 
     const programes = computed(() => {
-      return appStore. getProgrames
-    })
+      return appStore.getProgrames;
+    });
 
     onMounted(() => {
-      let labels, datasets
-      let missing = []
+      let labels, datasets;
+      let missing = [];
       if (props.data) {
-        let arr = JSON.parse(props.data)
+        let arr = JSON.parse(props.data);
 
         programes.value.forEach((p) => {
           const found = arr.find((a) => {
-            return p === a[0]
-          })
+            return p === a[0];
+          });
           if (!found) {
-            missing.push([p, 0])
+            missing.push([p, 0]);
           }
-         })
+        });
 
-        if (missing.length) {
-          arr.concat(missing)
-        }
-        arr = [...arr, ...missing]
-        arr.sort((a, b) => a[0] < b[0] ? 1 : -1 )
+        // if (missing.length) {
+        //   arr.concat(missing)
+        // }
+        // arr = [...arr, ...missing]
+        arr.sort((a, b) => (a[0] < b[0] ? 1 : -1));
         labels = arr.map((programa) => {
-          return programa[0]
-        })
-        
+          return programa[0];
+        });
+
         datasets = arr.map((programa) => {
-          return programa[1]
-        })
-        chartHeight.value = labels.length * 50
+          return programa[1];
+        });
+        chartHeight.value = labels.length * 50;
       }
 
-      const ctx = document.getElementById('myChart');
+      const ctx = document.getElementById("myChart");
 
       const myChart = new Chart(ctx, {
-        type: 'bar',
+        type: "bar",
         data: {
           labels: labels,
-          datasets: [{
-            data: datasets,
-            borderWidth: 1,
-            barThickness: 30,
-            backgroundColor: '#FD9E4B'
-          }],       
+          datasets: [
+            {
+              data: datasets,
+              borderWidth: 1,
+              barThickness: 30,
+              backgroundColor: "#FD9E4B",
+            },
+          ],
         },
-        options: options
+        options: options,
       });
-    })
+    });
 
     return {
-      chartHeight
-    }
-  }
-}
+      chartHeight,
+    };
+  },
+};
 </script>
 <style scoped>
-canvas{
+canvas {
   padding: 0 100px;
 }
-.chart-container{
-  border: 1px solid #11172B;
+.chart-container {
+  border: 1px solid #11172b;
 }
 </style>
