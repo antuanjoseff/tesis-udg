@@ -8,10 +8,12 @@ export const useAppStore = defineStore("counter", {
     programes: [],
 
     countryNames: [],
-    
+
     selectedCountry: {},
 
-    countryModalVisibility:  false,
+    countryModalVisibility: false,
+
+    thesisPerPage: 6,
   }),
 
   getters: {
@@ -25,6 +27,7 @@ export const useAppStore = defineStore("counter", {
 
     getCountryModalVisibility: (state) => state.countryModalVisibility,
 
+    getThesisPerPage: (state) => state.thesisPerPage,
   },
 
   actions: {
@@ -40,8 +43,8 @@ export const useAppStore = defineStore("counter", {
       this.countryNames = countries;
     },
 
-    setSelectedCountry(country) {
-      this.selectedCountry = country;
+    setSelectedCountry(data) {
+      this.selectedCountry = data;
     },
 
     setCountryModalVisibility(visibility) {

@@ -87,7 +87,7 @@ const organizeTesisData = (tesis_list, filter = "") => {
   var result = {};
   var programes = [];
   var data;
-  var names = [];
+  var idxProgram, idxLR;
   var countryNames = [];
 
   // Filter data if necessary
@@ -100,60 +100,100 @@ const organizeTesisData = (tesis_list, filter = "") => {
   }
 
   data.forEach((tesis) => {
+    if (!programes.includes(tesis.Pla)) {
+      programes.push(tesis.Pla);
+    }
     if (tesis.PaisCodi in result) {
       result[tesis.PaisCodi].count += 1;
       // Check if Pla already exists
       const programs = result[tesis.PaisCodi].programs;
-      const idxProgram = programs.findIndex((p) => {
+      idxProgram = programs.findIndex((p) => {
         return p.name === tesis.Pla;
       });
-      if (idxProgram !== -1) {
+      if (idxProgram === -1) {
         result[tesis.PaisCodi].programs.push({
-          name: tesis.Pla,
+          name: tesis.Pla !== "" ? tesis.Pla : "",
           count: 1,
-          LR: {
-            name: data.LiniaRecerca,
-            count: data.LiniaRecerca !== "" ? 1 : 0,
-          },
+          LR: [
+            {
+              name: tesis.LiniaRecerca !== "" ? tesis.LiniaRecerca : "",
+              count: data.LiniaRecerca !== "" ? 1 : 0,
+              thesis: [
+                {
+                  title: tesis.Titol,
+                  date: tesis.DataLectura,
+                  author: tesis.Doctorand,
+                  director: tesis.PrimerDirector,
+                },
+              ],
+            },
+          ],
         });
       } else {
-        result[tesis.PaisCodi].programs[idxPrograms].count += 1;
+        result[tesis.PaisCodi].programs[idxProgram].count += 1;
         //Check if LR already exists
-        const LR = result[tesis.PaisCodi].programs[idxPrograms].LR;
-        const idxLR = LR.find((lr) => {
-          return lr.name === tesis.LiniaRecerca && tesis.LiniaRecerca !== "";
+        const LR = result[tesis.PaisCodi].programs[idxProgram].LR;
+        idxLR = LR.findIndex((lr) => {
+          return lr.name === tesis.LiniaRecerca;
         });
-        if (idxLR !== -1) {
-          result[tesis.PaisCodi].programs[idxPrograms].LR[idxLR].count += 1;
-        } else {
-          result[tesis.PaisCodi].programs[idxPrograms].LR.push({
-            name: tesis.LiniaRecerca,
+        if (idxLR === -1) {
+          result[tesis.PaisCodi].programs[idxProgram].LR.push({
+            name: tesis.LiniaRecerca !== "" ? tesis.LiniaRecerca : "",
             count: data.LiniaRecerca !== "" ? 1 : 0,
+            thesis: [
+              {
+                title: tesis.Titol,
+                date: tesis.DataLectura,
+                author: tesis.Doctorand,
+                director: tesis.PrimerDirector,
+              },
+            ],
+          });
+        } else {
+          result[tesis.PaisCodi].programs[idxProgram].LR[idxLR].count += 1;
+          result[tesis.PaisCodi].programs[idxProgram].LR[idxLR].thesis.push({
+            title: tesis.Titol,
+            date: tesis.DataLectura,
+            author: tesis.Doctorand,
+            director: tesis.PrimerDirector,
           });
         }
       }
     } else {
       result[tesis.PaisCodi] = {
         count: 1,
+        name: tesis.Pais,
         programs: [
           {
-            name: data.Pla,
-            count: data.Pla !== "" ? 1 : 0,
+            name: tesis.Pla,
+            count: tesis.Pla !== "" ? 1 : 0,
             LR: [
               {
-                name: data.LiniaRecerca,
-                count: data.LiniaRecerca !== "" ? 1 : 0,
+                name: tesis.LiniaRecerca,
+                count: tesis.LiniaRecerca !== "" ? 1 : 0,
+                thesis: [
+                  {
+                    title: tesis.Titol,
+                    date: tesis.DataLectura,
+                    author: tesis.Doctorand,
+                    director: tesis.PrimerDirector,
+                  },
+                ],
               },
             ],
           },
         ],
       };
+
+      countryNames.push({
+        label: tesis.Pais,
+        value: tesis.CodiPais,
+      });
     }
   });
 
-  // Sourt countries
+  // Sort countries
   countryNames.sort((a, b) => a.label.localeCompare(b.label, "ca"));
-
   return { programes: programes, paisos: result, countryNames };
 };
 
@@ -205,9 +245,9 @@ const addThesisDataTo = (data, thesisData) => {
     data.features[idx]["id"] = idx;
 
     if (code in thesisData) {
-      data.features[idx].properties["tesis"] = thesisData[code].total;
+      data.features[idx].properties["tesis"] = thesisData[code].count;
       data.features[idx].properties["abstract"] = thesisData[code].abstract;
-      data.features[idx].properties["pais"] = thesisData[code].pais;
+      data.features[idx].properties["pais"] = thesisData[code].name;
     } else {
       data.features[idx].properties["tesis"] = 0;
       data.features[idx].properties["abstract"] = null;

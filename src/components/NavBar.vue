@@ -1,11 +1,11 @@
 <template>
   <div class="heading">
-    <ul>
+    <!-- <ul>
       <li v-for="(p, index) in programes" :key="index" @click="clickPrograme">
         {{ p }}
       </li>
       <li><q-icon name="close" @click="resetFilter" /></li>
-    </ul>
+    </ul> -->
   </div>
 </template>
 

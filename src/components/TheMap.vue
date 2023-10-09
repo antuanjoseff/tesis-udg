@@ -167,11 +167,11 @@ export default {
       map.value.on("click", "countries", (e) => {
         const selected = e.features[0];
         const code = selected.properties.iso_a3;
-        const abstract = selected.properties.abstract;
+        const info = countriesWithThesis[code];
         const nTesis = selected.properties.tesis;
 
         // flyToCountry(map, countriesData, code);
-        appStore.setSelectedCountry({ code, abstract, nTesis });
+        appStore.setSelectedCountry({ code, info, nTesis });
         appStore.setCountryModalVisibility(true);
       });
 
