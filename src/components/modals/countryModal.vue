@@ -193,9 +193,12 @@ export default {
     };
 
     onUpdated(() => {
+      list.value = [];
+      visibleList.value = [];
       page.value = 1;
       isVisible.value = false;
     });
+
     return {
       isVisible,
       list,
