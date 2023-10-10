@@ -2,7 +2,7 @@
   <div class="app">
     <NavBar @clickPrograme="clickPrograme" @resetFilter="resetFilter" />
     <TheMap ref="MAP" />
-    <country-modal></country-modal>
+    <programs-modal></programs-modal>
   </div>
 </template>
 
@@ -11,17 +11,16 @@ import NavBar from "components/NavBar.vue";
 import TheMap from "components/TheMap.vue";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { ref } from "vue";
-import CountryModal from 'src/components/modals/countryModal.vue';
+import ProgramsModal from "src/components/modals/ProgramsModal.vue";
 
 export default {
   name: "App",
   components: {
     NavBar,
     TheMap,
-    CountryModal,
+    ProgramsModal,
   },
   setup() {
-
     const MAP = ref();
 
     const clickPrograme = (e) => {
@@ -44,9 +43,8 @@ export default {
 <style>
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, "Roboto", "Oxygen",
-    "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
-    sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Roboto", "Oxygen", "Ubuntu",
+    "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }

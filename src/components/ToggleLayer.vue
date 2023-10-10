@@ -3,7 +3,7 @@
     class="toggle-switch"
     size="80px"
     v-model="value"
-    icon="alarm"
+    icon="fa-solid fa-map-location-dot"
     @update:model-value="toggleLayer"
     @click.prevent="preventDefault"
   />

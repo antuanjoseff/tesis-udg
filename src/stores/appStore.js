@@ -11,7 +11,7 @@ export const useAppStore = defineStore("counter", {
 
     selectedCountry: {},
 
-    selectedLR: [],
+    selectedProgram: "",
 
     countryModalVisibility: false,
 
@@ -25,7 +25,7 @@ export const useAppStore = defineStore("counter", {
 
     getSelectedCountry: (state) => state.selectedCountry,
 
-    getSelectedCountryLR: (state) => state.selectedLR,
+    getSelectedProgram: (state) => state.selectedProgram,
 
     getCountryNames: (state) => state.countryNames,
 
@@ -47,8 +47,8 @@ export const useAppStore = defineStore("counter", {
       this.countryNames = countries;
     },
 
-    setSelectedLR(LR) {
-      this.selectedLR = LR;
+    setSelectedProgram(program) {
+      this.selectedProgram = program;
     },
 
     setSelectedCountry(data) {

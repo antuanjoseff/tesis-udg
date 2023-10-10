@@ -34,10 +34,10 @@
       </q-card-section>
 
       <q-card-section>
-        <BarChart
+        <ProgramsChart
           :data="selectedCountry.info"
           :num="maxValue"
-          @selectedLR="selectedLR"
+          @selectedProgram="selectedProgram"
         />
       </q-card-section>
 
@@ -64,6 +64,7 @@
       <q-card-section v-if="isVisible">
         <div class="q-pa-lg flex flex-center">
           <q-pagination
+            v-if="maxPages > 1"
             v-model="page"
             :max="maxPages"
             :max-pages="10"
@@ -98,18 +99,29 @@
           </li>
         </ul>
       </q-card-section>
+      <q-card-section>
+        <q-btn
+          color="black"
+          label="Cercador de tesis"
+          class="absolute-center q-mt-lg"
+          @click="goUdG"
+        />
+      </q-card-section>
     </q-card>
   </q-dialog>
+  <!-- MODAL PER LES LÍNIES DE RECERCA -->
+  <LRModal></LRModal>
 </template>
 
 <script>
 import { useAppStore } from "src/stores/appStore.js";
-import BarChart from "src/components/BarChart.vue";
+import ProgramsChart from "src/components/ProgramsChart.vue";
+import LRModal from "src/components/modals/LRModal.vue";
 import { computed, ref, onUpdated } from "vue";
 
 export default {
-  name: "SearchCountry",
-  components: { BarChart },
+  name: "ProgramsModal",
+  components: { ProgramsChart, LRModal },
   emits: ["countrySelected"],
   setup(props, context) {
     const list = ref([]);
@@ -117,6 +129,7 @@ export default {
     const isVisible = ref(false);
     const page = ref(1);
     const maxPages = ref();
+    const dialogLR = ref(false);
     const visibleDetails = ref([]); // Array of visible details
     const appStore = useAppStore();
 
@@ -196,8 +209,8 @@ export default {
       visibleList.value = list.value.slice(first, last);
     };
 
-    const selectedLR = (LR) => {
-      console.log(LR);
+    const selectedProgram = (program) => {
+      appStore.setSelectedProgram(program);
     };
 
     onUpdated(() => {
@@ -207,6 +220,10 @@ export default {
       isVisible.value = false;
     });
 
+    const goUdG = () => {
+      document.location = "https://www.udg.edu";
+    };
+
     return {
       isVisible,
       list,
@@ -215,7 +232,7 @@ export default {
       model,
       close,
       selectedCountry,
-      selectedLR,
+      selectedProgram,
       selectedCountryName,
       toggleThesis,
       toggleDetail,
@@ -223,6 +240,7 @@ export default {
       maxPages,
       page,
       showPage,
+      goUdG,
     };
   },
 };

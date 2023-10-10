@@ -14,9 +14,9 @@ import { ref, onMounted, computed } from "vue";
 import { useAppStore } from "../stores/appStore.js";
 
 export default {
-  name: "BarChart",
+  name: "ProgramsChart",
   props: ["data", "num"],
-  emits: ["selectedLR"],
+  emits: ["selectedProgram"],
   setup(props, context) {
     let myChart;
     const appStore = useAppStore();
@@ -102,7 +102,6 @@ export default {
       }
 
       const ctx = document.getElementById("myChart");
-      console.log(chartHeight.value);
       ctx.height = chartHeight.value;
 
       myChart = new Chart(ctx, {
@@ -134,9 +133,9 @@ export default {
       );
       if (points.length) {
         let firstPoint = points[0];
-        const LRLabel = myChart.data.labels[firstPoint.index];
-        appStore.setSelectedLR(LRLabel);
-        context.emit("selectedLR", LRLabel);
+        const program = myChart.data.labels[firstPoint.index];
+        appStore.setSelectedProgram(program);
+        context.emit("selectedProgram", program);
       }
     };
     return {

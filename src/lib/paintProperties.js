@@ -28,12 +28,12 @@ const countries = {
   "fill-color": [
     "case",
     [">", ["to-number", ["get", "tesis"]], 60],
-    "#F6BA08",
+    "#455DA4",
     [">", ["to-number", ["get", "tesis"]], 21],
-    "#F9D465",
+    "#6477B0",
     [">=", ["to-number", ["get", "tesis"]], 10],
-    "#FCE5A2",
-    "#F3F6E0",
+    "#8492BD",
+    "#C5C9D8",
   ],
   "fill-opacity": 0.8,
 };
