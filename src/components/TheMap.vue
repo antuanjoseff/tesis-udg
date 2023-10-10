@@ -165,6 +165,31 @@ export default {
       });
 
       map.value.on("click", "countries", (e) => {
+        openCountryGraph(e);
+      });
+
+      map.value.on("click", "clusters", (e) => {
+        const features = map.value.queryRenderedFeatures(e.point, {
+          layers: ["clusters"],
+        });
+        const clusterId = features[0].properties.cluster_id;
+        map.value
+          .getSource("clusters")
+          .getClusterExpansionZoom(clusterId, (err, zoom) => {
+            if (err) return;
+
+            map.value.easeTo({
+              center: features[0].geometry.coordinates,
+              zoom,
+            });
+          });
+      });
+
+      map.value.on("click", "unclustered-point", (e) => {
+        openCountryGraph(e);
+      });
+
+      const openCountryGraph = (e) => {
         const selected = e.features[0];
         const code = selected.properties.iso_a3;
         const info = countriesWithThesis[code];
@@ -173,6 +198,22 @@ export default {
         // flyToCountry(map, countriesData, code);
         appStore.setSelectedCountry({ code, info, nTesis });
         appStore.setCountryModalVisibility(true);
+      };
+
+      map.value.on("mousemove", "unclustered-point", () => {
+        map.value.getCanvas().style.cursor = "pointer";
+      });
+
+      map.value.on("mouseleave", "unclustered-point", () => {
+        map.value.getCanvas().style.cursor = "";
+      });
+
+      map.value.on("mousemove", "clusters", () => {
+        map.value.getCanvas().style.cursor = "pointer";
+      });
+
+      map.value.on("mouseleave", "clusters", () => {
+        map.value.getCanvas().style.cursor = "";
       });
 
       map.value.on("mousemove", "countries", debounce);

@@ -1,6 +1,6 @@
 <template>
   <div class="chart-container">
-    <canvas id="myChart"></canvas>
+    <canvas id="myChart" :style="{ height: chartHeight }"></canvas>
   </div>
   <!-- <div class="text-center chart-container">
     <div>
@@ -16,13 +16,31 @@ import { useAppStore } from "../stores/appStore.js";
 export default {
   name: "BarChart",
   props: ["data", "num"],
-  setup(props) {
+  emits: ["selectedLR"],
+  setup(props, context) {
+    let myChart;
     const appStore = useAppStore();
     const chartHeight = ref();
+
     const options = {
       plugins: {
         legend: {
           display: false,
+        },
+        tooltip: {
+          padding: {
+            left: 20,
+            right: 20,
+            top: 7,
+            bottom: 7,
+          },
+          xAlign: "left",
+          displayColors: false,
+          callbacks: {
+            title: function (context) {
+              return "";
+            },
+          },
         },
       },
       indexAxis: "y",
@@ -37,32 +55,35 @@ export default {
           beginAtZero: true,
           ticks: {
             font: {
-              size: 10, //this change the font size
+              size: 15, //this change the font size
             },
           },
         },
       },
     };
 
-    const programes = computed(() => {
-      return appStore.getProgrames;
-    });
+    const data = ref(props.data ? props.data : "");
+    // const programes = computed(() => {
+    //   return appStore.getProgrames;
+    // });
 
     onMounted(() => {
+      const barThickness = 30;
+      const chartYMargin = 40;
       let labels, datasets;
-      let missing = [];
-      if (props.data) {
+      // let missing = [];
+      if (data.value) {
         // let arr = JSON.parse(props.data);
-        let arr = JSON.parse(JSON.stringify(props.data.programs));
+        let arr = JSON.parse(JSON.stringify(data.value.programs));
 
-        programes.value.forEach((p) => {
-          const found = arr.find((a) => {
-            return p === a.name;
-          });
-          if (!found) {
-            missing.push([p, 0]);
-          }
-        });
+        // programes.value.forEach((p) => {
+        //   const found = arr.find((a) => {
+        //     return p === a.name;
+        //   });
+        //   if (!found) {
+        //     missing.push([p, 0]);
+        //   }
+        // });
 
         // if (missing.length) {
         //   arr.concat(missing)
@@ -77,13 +98,14 @@ export default {
           return programa.count;
         });
 
-        chartHeight.value = labels.length * 12;
+        chartHeight.value = labels.length * barThickness + chartYMargin + "px";
       }
 
       const ctx = document.getElementById("myChart");
+      console.log(chartHeight.value);
       ctx.height = chartHeight.value;
 
-      const myChart = new Chart(ctx, {
+      myChart = new Chart(ctx, {
         type: "bar",
         data: {
           labels: labels,
@@ -91,15 +113,32 @@ export default {
             {
               data: datasets,
               borderWidth: 1,
-              barThickness: 30,
+              barThickness: barThickness,
               backgroundColor: "#FD9E4B",
+              hoverBackgroundColor: "#F2CEAF",
             },
           ],
         },
         options: options,
       });
+
+      ctx.onclick = clickHandler;
     });
 
+    const clickHandler = (click) => {
+      const points = myChart.getElementsAtEventForMode(
+        click,
+        "nearest",
+        { intersect: true },
+        true
+      );
+      if (points.length) {
+        let firstPoint = points[0];
+        const LRLabel = myChart.data.labels[firstPoint.index];
+        appStore.setSelectedLR(LRLabel);
+        context.emit("selectedLR", LRLabel);
+      }
+    };
     return {
       chartHeight,
     };

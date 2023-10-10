@@ -184,10 +184,9 @@ const organizeTesisData = (tesis_list, filter = "") => {
           },
         ],
       };
-
       countryNames.push({
         label: tesis.Pais,
-        value: tesis.CodiPais,
+        value: tesis.PaisCodi,
       });
     }
   });

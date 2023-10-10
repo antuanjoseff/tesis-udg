@@ -11,6 +11,8 @@ export const useAppStore = defineStore("counter", {
 
     selectedCountry: {},
 
+    selectedLR: [],
+
     countryModalVisibility: false,
 
     thesisPerPage: 6,
@@ -22,6 +24,8 @@ export const useAppStore = defineStore("counter", {
     isClustered: (state) => state.clustered,
 
     getSelectedCountry: (state) => state.selectedCountry,
+
+    getSelectedCountryLR: (state) => state.selectedLR,
 
     getCountryNames: (state) => state.countryNames,
 
@@ -41,6 +45,10 @@ export const useAppStore = defineStore("counter", {
 
     setCountryNames(countries) {
       this.countryNames = countries;
+    },
+
+    setSelectedLR(LR) {
+      this.selectedLR = LR;
     },
 
     setSelectedCountry(data) {

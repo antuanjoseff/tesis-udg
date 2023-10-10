@@ -9,11 +9,14 @@
         hide-selected
         fill-input
         rounded
+        :filled="filledStyle"
         outlined
         input-debounce="0"
         :options="options"
         @filter="filterFn"
         @input-value="setModel"
+        @popup-show="showSelectStyle"
+        @popup-hide="hideSelectStyle"
         style="width: 250px; padding-bottom: 32px"
         bg-color="white"
       >
@@ -47,6 +50,7 @@ export default {
   setup(props, context) {
     const appStore = useAppStore();
     const model = ref("");
+    const filledStyle = ref(false);
 
     const stringOptions = computed(() => {
       return appStore.getCountryNames;
@@ -90,12 +94,22 @@ export default {
       });
     };
 
+    const showSelectStyle = () => {
+      filledStyle.value = true;
+    };
+    const hideSelectStyle = () => {
+      filledStyle.value = false;
+    };
+
     return {
+      filledStyle,
       model,
       filterFn,
       countrySelected,
       setModel,
       options,
+      showSelectStyle,
+      hideSelectStyle,
     };
   },
 };

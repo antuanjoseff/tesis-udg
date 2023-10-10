@@ -34,7 +34,11 @@
       </q-card-section>
 
       <q-card-section>
-        <BarChart :data="selectedCountry.info" :num="maxValue" />
+        <BarChart
+          :data="selectedCountry.info"
+          :num="maxValue"
+          @selectedLR="selectedLR"
+        />
       </q-card-section>
 
       <q-card-section>
@@ -192,6 +196,10 @@ export default {
       visibleList.value = list.value.slice(first, last);
     };
 
+    const selectedLR = (LR) => {
+      console.log(LR);
+    };
+
     onUpdated(() => {
       list.value = [];
       visibleList.value = [];
@@ -207,6 +215,7 @@ export default {
       model,
       close,
       selectedCountry,
+      selectedLR,
       selectedCountryName,
       toggleThesis,
       toggleDetail,
