@@ -13,6 +13,8 @@ export const useAppStore = defineStore("counter", {
 
     selectedProgram: "",
 
+    nThesisInLR: 0,
+
     countryModalVisibility: false,
 
     thesisPerPage: 6,
@@ -32,6 +34,8 @@ export const useAppStore = defineStore("counter", {
     getCountryModalVisibility: (state) => state.countryModalVisibility,
 
     getThesisPerPage: (state) => state.thesisPerPage,
+
+    getNThesisInLR: (state) => state.nThesisInLR,
   },
 
   actions: {
@@ -49,6 +53,10 @@ export const useAppStore = defineStore("counter", {
 
     setSelectedProgram(program) {
       this.selectedProgram = program;
+    },
+
+    setNThesisInLR(value) {
+      this.nThesisInLR = value;
     },
 
     setSelectedCountry(data) {

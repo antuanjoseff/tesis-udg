@@ -44,7 +44,7 @@ export default {
 <style scoped>
 .toggle-switch {
   position: absolute;
-  right: 20px;
+  right: 15px;
   top: 85px;
   z-index: 200;
 }

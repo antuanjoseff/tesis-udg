@@ -1,5 +1,5 @@
 <template>
-  <q-dialog v-model="model" full-width full-height>
+  <q-dialog v-model="model" class="program-container" full-width>
     <q-card class="dialog-container">
       <q-card-section class="row items-center q-pb-none">
         <q-space />
@@ -16,14 +16,14 @@
 
       <q-card-section>
         <div class="text-center country-name">
-          <!-- {{ selectedCountry.info.name.toUpperCase() }} -->
+          {{ selectedCountry.info.name.toUpperCase() }}
         </div>
         <q-separator class="separator" />
       </q-card-section>
 
       <q-card-section>
         <div class="text-center thesis-count">
-          <!-- {{ selectedCountry.nTesis }} -->
+          {{ nThesisInLR }}
         </div>
         <div class="text-center thesis">Tesis</div>
         <q-separator class="separator" />
@@ -34,7 +34,9 @@
       </q-card-section>
 
       <q-card-section>
-        <LRChart :data="selectedCountry.info" :program="selectedProgram" />
+        <div class="text-center">
+          <LRChart :data="selectedCountry.info" :program="selectedProgram" />
+        </div>
       </q-card-section>
 
       <q-card-section>
@@ -131,6 +133,10 @@ export default {
       return appStore.getSelectedProgram != "";
     });
 
+    const nThesisInLR = computed(() => {
+      return appStore.getNThesisInLR;
+    });
+
     const close = () => {
       appStore.setSelectedProgram("");
     };
@@ -175,22 +181,27 @@ export default {
     const toggleThesis = () => {
       isVisible.value = !isVisible.value;
       if (!list.value.length) {
-        selectedCountry.value.info.programs.forEach((p) => {
-          maxPages.value = Math.ceil(
-            selectedCountry.value.nTesis / thesisPerPage
-          );
+        const data = JSON.parse(
+          JSON.stringify(selectedCountry.value.info.programs)
+        );
 
-          p.LR.forEach((lr) => {
-            lr.thesis.forEach((t) => {
-              list.value.push({
-                title: t.title,
-                date: t.date,
-                author: t.author,
-                director: t.director,
-              });
+        const element = data.filter((p) => {
+          return p.name == selectedProgram.value;
+        });
+
+        element[0].LR.forEach((lr) => {
+          lr.thesis.forEach((t) => {
+            list.value.push({
+              title: t.title,
+              date: t.date,
+              author: t.author,
+              director: t.director,
             });
           });
         });
+
+        maxPages.value = Math.ceil(list.value.length / thesisPerPage);
+
         list.value.sort((a, b) => (a.date <= b.date ? 1 : -1));
       }
 
@@ -217,6 +228,7 @@ export default {
     };
 
     return {
+      nThesisInLR,
       isVisible,
       list,
       visibleList,
@@ -310,5 +322,10 @@ ul.tesis-list li:hover {
 }
 .full-width div {
   min-width: 100%;
+}
+@media (min-width: 600px) {
+  .q-dialog__inner--minimized > div {
+    min-width: "50%";
+  }
 }
 </style>

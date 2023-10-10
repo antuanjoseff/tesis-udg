@@ -2,10 +2,6 @@
   <div class="chart-container">
     <canvas id="myChart" :style="{ height: chartHeight }"></canvas>
   </div>
-  <!-- <div class="text-center chart-container">
-    <div>
-    </div>
-  </div> -->
 </template>
 
 <script>
