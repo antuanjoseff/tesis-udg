@@ -126,17 +126,23 @@ export default {
         const name_expr = ["get", "name"];
         var thesisUrl = process.env.DEV
           ? "/tesis_api.json"
-          : "//sigserver4.udg.edu/tesis/spa/tesis_totals.json";
+          : "//sigserver4.udg.edu/tesis/spa/tesis_api.json";
 
-        var centroidsUrl = "/centroids.json";
-        var countriesUrl =
-          "//d2ad6b4ur7yvpq.cloudfront.net/naturalearth-3.3.0/ne_50m_admin_0_countries.geojson";
 
+        var centroidsUrl = process.env.DEV
+          ? "/centroids.json"
+          : "//sigserver4.udg.edu/tesis/spa/centroids.json";
+
+        var countriesUrl = process.env.DEV
+          ? "/countries.geojson"
+          : "//sigserver4.udg.edu/tesis/spa/countries.geojson";
+        
         originalData = await getData(thesisUrl);
         centroidsData = await getData(centroidsUrl);
         countriesData = await getData(countriesUrl);
 
-        thesisData = organizeTesisData(originalData);
+        const noName = appStore.getLRnoName
+        thesisData = organizeTesisData(originalData, noName);
         countriesWithThesis = thesisData.paisos;
         appStore.setProgrames(thesisData.programes.sort());
         appStore.setCountryNames(thesisData.countryNames.sort());

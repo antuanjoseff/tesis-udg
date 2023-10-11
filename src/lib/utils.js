@@ -83,7 +83,7 @@ const getCountryAbstract = (tesis_list, code) => {
   return { total, abstract };
 };
 
-const organizeTesisData = (tesis_list, filter = "") => {
+const organizeTesisData = (tesis_list, noName, filter = "") => {
   var result = {};
   var programes = [];
   var data;
@@ -103,6 +103,11 @@ const organizeTesisData = (tesis_list, filter = "") => {
     if (!programes.includes(tesis.Pla)) {
       programes.push(tesis.Pla);
     }
+    
+    if (tesis.LiniaRecerca === '') {
+      tesis.LiniaRecerca = noName
+    }
+
     if (tesis.PaisCodi in result) {
       result[tesis.PaisCodi].count += 1;
       // Check if Pla already exists

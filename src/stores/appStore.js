@@ -18,6 +18,8 @@ export const useAppStore = defineStore("counter", {
     countryModalVisibility: false,
 
     thesisPerPage: 6,
+
+    LRnoName: 'Sense deterinar'
   }),
 
   getters: {
@@ -36,6 +38,8 @@ export const useAppStore = defineStore("counter", {
     getThesisPerPage: (state) => state.thesisPerPage,
 
     getNThesisInLR: (state) => state.nThesisInLR,
+
+    getLRnoName: (state) => state.LRnoName
   },
 
   actions: {

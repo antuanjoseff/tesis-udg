@@ -3,7 +3,7 @@
     class="toggle-switch"
     size="60px"
     v-model="value"
-    color="lime-9"
+    color="black"
     icon="fa-solid fa-map-location-dot"
     @update:model-value="toggleLayer"
     @click.prevent="preventDefault"
@@ -42,11 +42,16 @@ export default {
 };
 </script>
 
-<style scoped>
+<style>
 .toggle-switch {
   position: absolute;
   right: 20px;
   bottom: 20px;
   z-index: 200;
+}
+
+.q-toggle__inner--truthy .toggle-switch .q-toggle__track{
+  opacity: 1;
+  color: #C1C3D5;
 }
 </style>
