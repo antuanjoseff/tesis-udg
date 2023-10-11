@@ -1,13 +1,5 @@
 <template>
   <div class="main-container">
-    <div class="text-left flex chart-breadcrumb">
-      <div>
-        <q-icon name="arrow_back" size="xl" class="q-mr-md" @click="close" />
-      </div>
-      <div>
-        <span class="chart-title">{{ selectedProgram }}</span>
-      </div>
-    </div>
     <div class="chart-container">
       <div id="legend-container"></div>
       <div class="canvas-container">

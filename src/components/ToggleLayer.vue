@@ -1,7 +1,7 @@
 <template>
   <q-toggle
     class="toggle-switch"
-    size="80px"
+    size="60px"
     v-model="value"
     icon="fa-solid fa-map-location-dot"
     @update:model-value="toggleLayer"
@@ -44,8 +44,8 @@ export default {
 <style scoped>
 .toggle-switch {
   position: absolute;
-  right: 15px;
-  top: 85px;
+  right: 20px;
+  bottom: 20px;
   z-index: 200;
 }
 </style>

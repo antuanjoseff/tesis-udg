@@ -25,6 +25,7 @@ const clusters = {
 // Més de 60 tesis >> #F6BA08
 
 const countries = {
+  "fill-outline-color": "white",
   "fill-color": [
     "case",
     [">", ["to-number", ["get", "tesis"]], 60],

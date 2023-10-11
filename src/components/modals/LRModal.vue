@@ -15,6 +15,24 @@
       </q-card-section>
 
       <q-card-section>
+        <div class="text-left flex chart-breadcrumb">
+          <div>
+            <q-icon
+              name="arrow_back"
+              size="xl"
+              class="q-mr-md"
+              @click="close"
+            />
+          </div>
+          <div class="chart-title">
+            <span class="text-weight-medium"
+              >Programa de doctorat:
+              {{ selectedProgram }}
+            </span>
+          </div>
+        </div>
+      </q-card-section>
+      <q-card-section>
         <div class="text-center country-name">
           {{ selectedCountry.info.name.toUpperCase() }}
         </div>
@@ -30,7 +48,7 @@
       </q-card-section>
 
       <q-card-section>
-        <div class="programa-doctorat">Programa de doctorat</div>
+        <div class="programa-doctorat">Linia de recerca</div>
       </q-card-section>
 
       <q-card-section>
