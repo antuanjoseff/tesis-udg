@@ -14,9 +14,9 @@ const clusters = {
   "circle-color": clusterColor,
   "circle-opacity": 0.8,
   "circle-stroke-color": clusterColor,
-  "circle-stroke-opacity": 0.7,
+  "circle-stroke-opacity": 0.5,
   "circle-stroke-width": 10,
-  "circle-radius": ["step", ["get", "sum"], 20, 100, 30, 750, 40],
+  "circle-radius": ["step", ["get", "sum"], 15, 100, 20, 750, 30],
 };
 
 // Menys de 10 tesis>> #F3F6E0

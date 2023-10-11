@@ -18,7 +18,12 @@ import SearchCountry from "components/SearchCountry.vue";
 import { Map, Popup, NavigationControl, LngLatBounds } from "maplibre-gl";
 import { shallowRef, onMounted, onUnmounted, markRaw, computed } from "vue";
 import { addLayersToMap, flyToCountry } from "src/lib/maplib.js";
-import { organizeTesisData, getData, addThesisDataTo } from "src/lib/utils.js";
+import {
+  formatPopup,
+  organizeTesisData,
+  getData,
+  addThesisDataTo,
+} from "src/lib/utils.js";
 
 export default {
   name: "TheMap",
@@ -27,7 +32,7 @@ export default {
     const mapContainer = shallowRef(null);
     const map = shallowRef(null);
     let popup;
-    let debounceTimer;
+    let debounceTimer = 50;
     let hoveredStateId = null;
     let centroidsData,
       countriesData,
@@ -86,6 +91,18 @@ export default {
       );
       const nav = new NavigationControl();
       map.value.addControl(nav, "top-left");
+
+      // DEFINE MARKER
+      var marker_url = process.env.DEV
+        ? "/marker.png"
+        : "//sigserver4.udg.edu/tesis/spa/marker.png";
+
+      map.value.loadImage(marker_url, (error, image) => {
+        if (error) {
+          throw error;
+        }
+        map.value.addImage("marker", image);
+      });
 
       class GeocodeControl {
         onAdd(map) {
@@ -227,9 +244,8 @@ export default {
           );
         }
         hoveredStateId = null;
-        // popup.remove();
+        popup.remove();
         window.clearTimeout(debounceTimer);
-        // map.value.setFilter("countries", null);
       });
     }),
       onUnmounted(() => {
@@ -263,18 +279,21 @@ export default {
     };
 
     function handleMouseMove(features, lngLat) {
-      // var content = `
-      //   <div class="popupTitle">
-      //     <div class="name">  ${features[0].properties.name} </div>
-      //     <div class="total">${features[0].properties.tesis}</div>
-      //   </div>`;
-      // const details = formatPopup(features[0].properties.abstract);
-      // content += details;
-      // if (features[0].properties.tesis) {
-      //   popup.setLngLat(lngLat).setHTML(content).addTo(map.value);
-      // } else {
-      //   popup.remove();
-      // }
+      const code = features[0].properties.iso_a3;
+      const country = thesisData.countryNames.find((c) => {
+        return c.value == code;
+      });
+      var content = `
+        <div class="popupTitle">
+          <div class="name">  ${country.label} </div>
+          <div class="total">${features[0].properties.tesis} <span>tesis</span></div>
+        </div>`;
+
+      if (features[0].properties.tesis) {
+        popup.setLngLat(lngLat).setHTML(content).addTo(map.value);
+      } else {
+        popup.remove();
+      }
     }
     const countrySelected = (code) => {
       if (code.length) {
@@ -357,7 +376,39 @@ export default {
 };
 </script>
 
-<style scoped>
+<style>
+/* POPUP STYLE */
+
+.maplibregl-popup-tip {
+  display: none;
+}
+
+.popupTitle {
+  margin: unset;
+  border: unset;
+  display: flex;
+  flex-direction: column;
+}
+
+.popupTitle div:first-child {
+  padding-right: unset;
+  padding-bottom: 10px;
+}
+
+.popupTitle .name,
+.popupTitle .total {
+  text-align: left;
+}
+
+.map .popupTitle .total span {
+  text-transform: unset;
+}
+
+.map .maplibregl-popup-content {
+  background: #000;
+  color: white;
+}
+
 .map-wrap {
   position: relative;
   width: 100%;

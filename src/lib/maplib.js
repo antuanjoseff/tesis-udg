@@ -22,13 +22,19 @@ function addLayersToMap(map, isClustered) {
   // UNCLUSTERED
   map.value.addLayer({
     id: "unclustered-point",
-    type: "circle",
+    type: "symbol",
     source: "clusters",
     layout: {
+      "icon-image": "marker",
+      "icon-size": 0.7,
+      "icon-allow-overlap": true,
       visibility: "none",
     },
     filter: ["all", [">", ["get", "tesis"], 0], ["!", ["has", "point_count"]]],
-    paint: unclusteredProperties,
+    paint: {
+      "icon-translate": [0, 5],
+    },
+    // paint: unclusteredProperties,
   });
 
   map.value.addLayer({

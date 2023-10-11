@@ -177,7 +177,7 @@ export default {
 </script>
 
 <style>
-canvas {
+. main-container canvas {
   padding: 0 20px;
 }
 .main-container {
