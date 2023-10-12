@@ -407,7 +407,7 @@ export default {
 }
 
 .map .popupTitle .total span {
-  text-transform: unset;
+  text-transform: capitalize;
 }
 
 .map .maplibregl-popup-content {
