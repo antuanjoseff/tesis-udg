@@ -90,7 +90,8 @@ function addLayersToMap(map, isClustered) {
     layout: {},
     // properties
     paint: {
-      "line-color": "rgba(129, 66, 84, 1)",
+      // "line-color": "rgba(129, 66, 84, 1)",
+      "line-color": "rgba(255, 255, 255, 1)",
       "line-width": [
         "case",
         ["==", ["to-number", ["get", "tesis"]], 0],
@@ -109,6 +110,24 @@ const flyToCountry = (map, countriesData, code) => {
   map.value.fitBounds(bounds, {
     padding: 20,
   });
+  // Find and select country
+  let country = undefined
+  countriesData.features.forEach((element) => {
+    map.value.setFeatureState(
+      { source: "countries", id: element.id },
+      { hover: false }
+    );
+    if (element.properties.iso_a3.toLowerCase() === code.toLowerCase()) {
+      country = element
+    }
+  })
+
+  if (country) {
+    map.value.setFeatureState(
+      { source: "countries", id: country.id },
+      { hover: true }
+    );  
+  }
 };
 
 export { addLayersToMap, flyToCountry };

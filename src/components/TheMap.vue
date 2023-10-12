@@ -7,7 +7,10 @@
     /></a>
     <div class="map" ref="mapContainer"></div>
     <toggle-layer @toggleLayerType="toggleLayerType" />
-    <search-country @countrySelected="countrySelected" />
+    <search-country 
+      @countrySelected="countrySelected" 
+      @resetCountrySearch="resetCountrySearch" 
+    />
   </div>
 </template>
 
@@ -134,8 +137,8 @@ export default {
           : "//sigserver4.udg.edu/tesis/spa/centroids.json";
 
         var countriesUrl = process.env.DEV
-          ? "/countries.geojson"
-          : "//sigserver4.udg.edu/tesis/spa/countries.geojson";
+          ? "/countries.json"
+          : "//sigserver4.udg.edu/tesis/spa/countries.json";
         
         originalData = await getData(thesisUrl);
         centroidsData = await getData(centroidsUrl);
@@ -360,14 +363,21 @@ export default {
         return filteredCountries.includes(f.value);
       });
       appStore.setCountryNames(filteredCountryNames);
-      console.log(countries.features);
-      console.log(countriesData.features);
     };
 
     const handleResetFilter = () => {
       map.value.getSource("clusters").setData(centroidsData);
       map.value.getSource("countries").setData(countriesData);
       appStore.setCountryNames(thesisData.countryNames);
+    };
+
+    const resetCountrySearch = () => {
+      countriesData.features.forEach((element) => {
+        map.value.setFeatureState(
+          { source: "countries", id: element.id },
+          { hover: false }
+        );
+      })
     };
 
     return {
@@ -377,6 +387,7 @@ export default {
       toggleLayerType,
       countrySelected,
       handleResetFilter,
+      resetCountrySearch
     };
   },
 };

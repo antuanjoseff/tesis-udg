@@ -84,6 +84,7 @@
             v-model="page"
             :max="maxPages"
             :max-pages="10"
+            color="orange"
             :boundary-numbers="false"
             @update:model-value="showPage"
           />

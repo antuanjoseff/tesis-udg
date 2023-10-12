@@ -17,7 +17,7 @@ export const useAppStore = defineStore("counter", {
 
     countryModalVisibility: false,
 
-    thesisPerPage: 6,
+    thesisPerPage: 30,
 
     LRnoName: 'Sense deterinar'
   }),

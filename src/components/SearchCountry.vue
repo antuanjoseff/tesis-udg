@@ -24,7 +24,7 @@
           <q-icon
             v-if="model !== ''"
             name="close"
-            @click.stop.prevent="model = ''"
+            @click.stop.prevent="resetCountrySearch"
             class="cursor-pointer"
           />
           <q-icon name="search" @click.stop.prevent />
@@ -46,7 +46,7 @@ import { computed, ref } from "vue";
 
 export default {
   name: "SearchCountry",
-  emits: ["countrySelected"],
+  emits: ["countrySelected", "resetCountrySearch"],
   setup(props, context) {
     const appStore = useAppStore();
     const model = ref("");
@@ -101,6 +101,11 @@ export default {
       filledStyle.value = false;
     };
 
+    const resetCountrySearch = () => {
+      model.value = ''
+      context.emit('resetCountrySearch')
+    }
+
     return {
       filledStyle,
       model,
@@ -110,6 +115,7 @@ export default {
       options,
       showSelectStyle,
       hideSelectStyle,
+      resetCountrySearch
     };
   },
 };
