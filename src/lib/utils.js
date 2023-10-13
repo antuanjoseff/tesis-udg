@@ -83,6 +83,18 @@ const getCountryAbstract = (tesis_list, code) => {
   return { total, abstract };
 };
 
+const formatDate = (strDate) => {
+  if (typeof(strDate) === 'string') {
+    const date = new Date(strDate)
+    const year = date.getFullYear();
+    // const month = String(date.getMonth() + 1).padStart(2, "0");
+    const month = date.toLocaleString('default', { month: 'short' });
+    const day = String(date.getDate()).padStart(2, "0");
+    return `${day}-${month}-${year}`;
+  } else {
+    return ''
+  }
+}
 const organizeTesisData = (tesis_list, noName, filter = "") => {
   var result = {};
   var programes = [];
@@ -126,7 +138,7 @@ const organizeTesisData = (tesis_list, noName, filter = "") => {
               thesis: [
                 {
                   title: tesis.Titol,
-                  date: tesis.DataLectura,
+                  date: formatDate(tesis.DataLectura),
                   author: tesis.Doctorand,
                   director: tesis.PrimerDirector,
                 },

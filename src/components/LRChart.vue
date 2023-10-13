@@ -1,13 +1,13 @@
 <template>
   <div class="main-container">
     <div class="chart-container">
-      <div id="legend-container"></div>
       <div class="canvas-container">
         <canvas
           id="LRChart"
           :style="{ width: '100%', height: chartHeight }"
         ></canvas>
       </div>
+      <div id="legend-container"></div>
     </div>
   </div>
 </template>
@@ -138,18 +138,17 @@ export default {
           };
 
           // Color box
-          const boxSpan = document.createElement("span");
+          const boxSpan = document.createElement("div");
           boxSpan.style.background = item.fillStyle;
           boxSpan.style.borderColor = item.strokeStyle;
           boxSpan.style.borderWidth = item.lineWidth + "px";
           boxSpan.style.display = "inline-block";
           boxSpan.style.flexShrink = 0;
-          boxSpan.style.height = "20px";
-          boxSpan.style.marginRight = "10px";
-          boxSpan.style.width = "20px";
+          boxSpan.classList.add('box-color')
 
           // Text
-          const textContainer = document.createElement("p");
+          const textContainer = document.createElement("div");
+          textContainer.classList.add('box-label')
           textContainer.style.color = item.fontColor;
           textContainer.style.margin = 0;
           textContainer.style.padding = 0;
@@ -177,29 +176,37 @@ export default {
 </script>
 
 <style>
-. main-container canvas {
+.main-container canvas {
   padding: 0 20px;
 }
 .main-container {
   border: 1px solid #11172b;
   padding: 20px;
+  display:flex;
+  justify-content: center;
+  max-height: 550px;  
+  min-height: 400px;  
 }
 .chart-container {
   padding: 20px;
   display: flex;
   flex-direction: row;
+  width: 100%;
 }
 
 .canvas-container {
   width: 60%;
+  display: flex;
+  justify-content: center;
 }
 
 #legend-container {
   width: 40%;
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  text-align: center;
+  /* max-height: 500px; */
+  overflow:auto;
+  padding-right: 20px;
 }
 
 .leg-wrapper {
@@ -214,6 +221,17 @@ export default {
   display: flex;
   width: 100%;
   padding: 5px 0px;
+  align-items: center;
+}
+
+.leg-element .box-label {
+  text-align: left;
+}
+
+.leg-element .box-color {
+  width:75px;
+  height: 40px;
+  margin-right: 10px;
 }
 
 .leg-element p {

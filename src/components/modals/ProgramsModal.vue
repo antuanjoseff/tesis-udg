@@ -298,6 +298,7 @@ button.custom:hover {
   border: 1px solid #00000029;
   padding: 20px;
   justify-content: space-between;
+  cursor:default;
 }
 
 .details-container div {

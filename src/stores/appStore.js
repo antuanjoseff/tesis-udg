@@ -19,7 +19,7 @@ export const useAppStore = defineStore("counter", {
 
     thesisPerPage: 30,
 
-    LRnoName: 'Sense deterinar'
+    LRnoName: 'Sense determinar'
   }),
 
   getters: {
