@@ -21,10 +21,13 @@ function addLayersToMap(map, isClustered) {
 
   // UNCLUSTERED
   map.value.addLayer({
-    id: "unclustered-point",
+    id: "unclustered",
     type: "symbol",
     source: "clusters",
     layout: {
+      "text-field": ["get", "tesis"],
+      "text-font": ["FiraSans-Bold"],
+      "text-size": 14,      
       "icon-image": "marker",
       "icon-size": 0.7,
       "icon-allow-overlap": true,
@@ -33,25 +36,26 @@ function addLayersToMap(map, isClustered) {
     filter: ["all", [">", ["get", "tesis"], 0], ["!", ["has", "point_count"]]],
     paint: {
       "icon-translate": [0, 5],
+      "text-color": "#fff",
     },
     // paint: unclusteredProperties,
   });
 
-  map.value.addLayer({
-    id: "unclustered-count",
-    type: "symbol",
-    source: "clusters",
-    layout: {
-      "text-field": ["get", "tesis"],
-      "text-font": ["FiraSans-Bold"],
-      "text-size": 14,
-      visibility: "none",
-    },
-    filter: ["all", [">", ["get", "tesis"], 0], ["!", ["has", "point_count"]]],
-    paint: {
-      "text-color": "#fff",
-    },
-  });
+  // map.value.addLayer({
+  //   id: "unclustered-count",
+  //   type: "symbol",
+  //   source: "clusters",
+  //   layout: {
+  //     "text-field": ["get", "tesis"],
+  //     "text-font": ["FiraSans-Bold"],
+  //     "text-size": 14,
+  //     visibility: "none",
+  //   },
+  //   filter: ["all", [">", ["get", "tesis"], 0], ["!", ["has", "point_count"]]],
+  //   paint: {
+  //     "text-color": "#fff",
+  //   },
+  // });
 
   // CLUSTERED
   map.value.addLayer({
@@ -60,6 +64,7 @@ function addLayersToMap(map, isClustered) {
     source: "clusters",
     filter: ["all", [">", ["get", "sum"], 0], ["has", "point_count"]],
     layout: {
+      
       visibility: "none",
     },
     paint: clustersProperties,

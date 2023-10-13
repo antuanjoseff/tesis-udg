@@ -231,6 +231,7 @@ export default {
 
     const showPage = (idx) => {
       var first = (idx - 1) * thesisPerPage;
+      visibleDetails.value = []
       var last = idx * thesisPerPage;
       visibleList.value = list.value.slice(first, last);
     };

@@ -7,11 +7,17 @@ export const useAppStore = defineStore("counter", {
 
     programes: [],
 
+    researchLines: [],
+
     countryNames: [],
 
     selectedCountry: {},
 
-    selectedProgram: "",
+    selectedProgram: "", // Program selected from chart
+
+    filteredProgram: "", 
+
+    filteredLine: "", 
 
     nThesisInLR: 0,
 
@@ -19,17 +25,25 @@ export const useAppStore = defineStore("counter", {
 
     thesisPerPage: 30,
 
-    LRnoName: 'Sense determinar'
+    LRnoName: 'Sense determinar',
+
+    filterIsVisible: false,
   }),
 
   getters: {
     getProgrames: (state) => state.programes,
+
+    getResearchLines: (state) => state.researchLines,
 
     isClustered: (state) => state.clustered,
 
     getSelectedCountry: (state) => state.selectedCountry,
 
     getSelectedProgram: (state) => state.selectedProgram,
+
+    getFilteredProgram: (state) => state.filteredProgram,
+
+    getFilteredLine: (state) => state.filteredLine,
 
     getCountryNames: (state) => state.countryNames,
 
@@ -39,12 +53,18 @@ export const useAppStore = defineStore("counter", {
 
     getNThesisInLR: (state) => state.nThesisInLR,
 
-    getLRnoName: (state) => state.LRnoName
+    getLRnoName: (state) => state.LRnoName,
+
+    getFilterIsVisible: (state) => state.filterIsVisible
   },
 
   actions: {
     setProgrames(programes) {
       this.programes = programes;
+    },
+
+    setResearchLines(researchLines) {
+      this.researchLines = researchLines;
     },
 
     setClustered(value) {
@@ -59,6 +79,14 @@ export const useAppStore = defineStore("counter", {
       this.selectedProgram = program;
     },
 
+    setFilteredProgram(program) {
+      this.filteredProgram = program;
+    },
+
+    setFilteredLine(researchLine) {
+      this.filteredLine = researchLine;
+    },
+
     setNThesisInLR(value) {
       this.nThesisInLR = value;
     },
@@ -69,6 +97,10 @@ export const useAppStore = defineStore("counter", {
 
     setCountryModalVisibility(visibility) {
       this.countryModalVisibility = visibility;
+    },
+
+    toggleFilter(visibility) {
+      this.filterIsVisible = !this.filterIsVisible;
     },
   },
 });

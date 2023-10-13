@@ -95,7 +95,7 @@ const formatDate = (strDate) => {
     return ''
   }
 }
-const organizeTesisData = (tesis_list, noName, filter = "") => {
+const organizeThesisData = (tesis_list, noName, filter = "") => {
   var result = {};
   var programes = [];
   var data;
@@ -112,14 +112,28 @@ const organizeTesisData = (tesis_list, noName, filter = "") => {
   }
 
   data.forEach((tesis) => {
-    if (!programes.includes(tesis.Pla)) {
-      programes.push(tesis.Pla);
-    }
-    
     if (tesis.LiniaRecerca === '') {
       tesis.LiniaRecerca = noName
     }
 
+    const foundProgram = programes.find((e) => {
+      return e.name === tesis.Pla
+    })
+
+    if (!foundProgram) {
+      programes.push({
+        name: tesis.Pla,
+        researchLines: [tesis.LiniaRecerca]
+      });
+    } else {
+      const foundLR = foundProgram.researchLines.find((lr) => {
+        return lr === tesis.LiniaRecerca
+      })
+      if (!foundLR) {
+        foundProgram.researchLines.push(tesis.LiniaRecerca)
+      }
+    }
+       
     if (tesis.PaisCodi in result) {
       result[tesis.PaisCodi].count += 1;
       // Check if Pla already exists
@@ -207,9 +221,11 @@ const organizeTesisData = (tesis_list, noName, filter = "") => {
       });
     }
   });
-
-  // Sort countries
+  console.log(programes)
   countryNames.sort((a, b) => a.label.localeCompare(b.label, "ca"));
+  programes.sort((a, b) => {
+    return a.name >= b.name ? 1 : -1
+  });
   return { programes: programes, paisos: result, countryNames };
 };
 
@@ -279,7 +295,7 @@ export {
   getRandomColor,
   getBbox,
   getCountryGeometry,
-  organizeTesisData,
+  organizeThesisData,
   getCountryAbstract,
   formatPopup,
   getData,

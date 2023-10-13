@@ -1,7 +1,7 @@
 <template>
   <div class="app">
     <NavBar @clickPrograme="clickPrograme" @resetFilter="resetFilter" />
-    <TheMap ref="MAP" />
+    <TheMap ref="MAP" @toggleFilter="toggleFilter"/>
     <programs-modal></programs-modal>
   </div>
 </template>
@@ -12,6 +12,7 @@ import TheMap from "components/TheMap.vue";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { ref } from "vue";
 import ProgramsModal from "src/components/modals/ProgramsModal.vue";
+import { useAppStore } from "../stores/appStore.js";
 
 export default {
   name: "App",
@@ -21,6 +22,8 @@ export default {
     ProgramsModal,
   },
   setup() {
+    const appStore = useAppStore();
+
     const MAP = ref();
 
     const clickPrograme = (e) => {
@@ -31,8 +34,14 @@ export default {
       MAP.value.handleResetFilter();
     };
 
+    const toggleFilter = (e) => {
+      appStore.toggleFilter()
+      console.log('filter changed')
+    };
+
     return {
       MAP,
+      toggleFilter,
       clickPrograme,
       resetFilter,
     };
