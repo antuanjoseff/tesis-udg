@@ -43,7 +43,6 @@
         popup-content-class="qselect-options"
         @filter="filterResearchLineFn"
         @input-value="setModelLine"
-        @update:model-value="programSelected"
         @clear="resetLine"
       >
       </q-select>
@@ -57,7 +56,7 @@ import { computed, ref } from "vue";
 
 export default {
   name: "FilterBox",
-  emits: ["filteredProgram", "resetProgram", "filteredLine", "resetLine"],
+  emits: ["filterSet", "filterReset"],
   setup(props, context) {
     const appStore = useAppStore();
     const modelProgram = ref("");
@@ -83,7 +82,7 @@ export default {
 
     const setModelProgram = (val) => {
       if (val.length) {
-        context.emit("filteredProgram", val);        
+        context.emit("filterSet", { program: val, researchLine: '' });        
         appStore.setFilteredProgram(val)
       }
       modelProgram.value = val;
@@ -94,19 +93,28 @@ export default {
     const resetProgram = () => {
       modelProgram.value = ''
       appStore.setFilteredProgram('')
-      context.emit('resetProgram')
+      context.emit('filterReset', {
+        program: '',
+        researchLine: ''
+      })
     }
 
     const setModelLine = (val) => {
       if (val.length) {
-        context.emit("filteredLine", val);
+        context.emit("filterSet", {
+          program: modelProgram.value,
+          researchLine: val
+        });
       }
       modelLine.value = val;
     };
 
     const resetLine = () => {
       modelLine.value = ''
-      context.emit('resetLine')
+      context.emit('filterReset', {
+        program: modelProgram.value,
+        researchLine: '' 
+      })
     }
 
     const filterProgramFn = (val, update, abort) => {
@@ -135,10 +143,6 @@ export default {
       filledStyle.value = false;
     };
 
-    const programSelected = () => {
-      console.log('programSelected')
-    };
-
     return {
       filterIsVisible,
       filledStyle,
@@ -153,8 +157,7 @@ export default {
       showSelectStyle,
       hideSelectStyle,
       resetProgram,
-      resetLine,
-      programSelected
+      resetLine
     };
   },
 };

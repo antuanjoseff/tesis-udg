@@ -145,7 +145,7 @@ const organizeThesisData = (tesis_list, noName, filter = "") => {
         result[tesis.PaisCodi].programs.push({
           name: tesis.Pla !== "" ? tesis.Pla : "",
           count: 1,
-          LR: [
+          researchLines: [
             {
               name: tesis.LiniaRecerca !== "" ? tesis.LiniaRecerca : "",
               count: data.LiniaRecerca !== "" ? 1 : 0,
@@ -163,12 +163,12 @@ const organizeThesisData = (tesis_list, noName, filter = "") => {
       } else {
         result[tesis.PaisCodi].programs[idxProgram].count += 1;
         //Check if LR already exists
-        const LR = result[tesis.PaisCodi].programs[idxProgram].LR;
+        const LR = result[tesis.PaisCodi].programs[idxProgram].researchLines;
         idxLR = LR.findIndex((lr) => {
           return lr.name === tesis.LiniaRecerca;
         });
         if (idxLR === -1) {
-          result[tesis.PaisCodi].programs[idxProgram].LR.push({
+          result[tesis.PaisCodi].programs[idxProgram].researchLines.push({
             name: tesis.LiniaRecerca !== "" ? tesis.LiniaRecerca : "",
             count: data.LiniaRecerca !== "" ? 1 : 0,
             thesis: [
@@ -181,8 +181,8 @@ const organizeThesisData = (tesis_list, noName, filter = "") => {
             ],
           });
         } else {
-          result[tesis.PaisCodi].programs[idxProgram].LR[idxLR].count += 1;
-          result[tesis.PaisCodi].programs[idxProgram].LR[idxLR].thesis.push({
+          result[tesis.PaisCodi].programs[idxProgram].researchLines[idxLR].count += 1;
+          result[tesis.PaisCodi].programs[idxProgram].researchLines[idxLR].thesis.push({
             title: tesis.Titol,
             date: tesis.DataLectura,
             author: tesis.Doctorand,
@@ -198,7 +198,7 @@ const organizeThesisData = (tesis_list, noName, filter = "") => {
           {
             name: tesis.Pla,
             count: tesis.Pla !== "" ? 1 : 0,
-            LR: [
+            researchLines: [
               {
                 name: tesis.LiniaRecerca,
                 count: tesis.LiniaRecerca !== "" ? 1 : 0,
@@ -221,11 +221,17 @@ const organizeThesisData = (tesis_list, noName, filter = "") => {
       });
     }
   });
-  console.log(programes)
+
+  // Sort data
   countryNames.sort((a, b) => a.label.localeCompare(b.label, "ca"));
   programes.sort((a, b) => {
     return a.name >= b.name ? 1 : -1
   });
+
+  programes.forEach((p, idx) => {
+    programes[idx].researchLines = p.researchLines.sort()
+  })
+  
   return { programes: programes, paisos: result, countryNames };
 };
 
