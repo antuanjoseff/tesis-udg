@@ -105,6 +105,7 @@ export default {
           program: modelProgram.value,
           researchLine: val
         });
+        appStore.setFilteredLine(val)
       }
       modelLine.value = val;
     };
@@ -115,6 +116,7 @@ export default {
         program: modelProgram.value,
         researchLine: '' 
       })
+      appStore.setFilteredLine('')
     }
 
     const filterProgramFn = (val, update, abort) => {

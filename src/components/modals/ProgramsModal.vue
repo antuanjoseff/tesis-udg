@@ -130,7 +130,6 @@ export default {
     const isVisible = ref(false);
     const page = ref(1);
     const maxPages = ref();
-    const dialogLR = ref(false);
     const visibleDetails = ref([]); // Array of visible details
     const appStore = useAppStore();
 
@@ -138,6 +137,14 @@ export default {
 
     const model = computed(() => {
       return appStore.getCountryModalVisibility;
+    });
+
+    const filteredProgram = computed(() => {
+      return appStore.getFilteredProgram;
+    });
+
+    const filteredLine = computed(() => {
+      return appStore.getFilteredLine;
     });
 
     const close = () => {
@@ -180,22 +187,32 @@ export default {
     const toggleThesis = () => {
       isVisible.value = !isVisible.value;
       if (!list.value.length) {
+        // Iterate all thesis of selected country
         selectedCountry.value.info.programs.forEach((p) => {
-          maxPages.value = Math.ceil(
-            selectedCountry.value.nTesis / thesisPerPage
-          );
+          
+          // check for filtered program. If so, check if current program is the one filtered
+          if (filteredProgram.value ==='' || filteredProgram.value == p.name) {
+          
+            p.researchLines.forEach((rLine) => {
 
-          p.LR.forEach((lr) => {
-            lr.thesis.forEach((t) => {
-              list.value.push({
-                title: t.title,
-                date: t.date,
-                author: t.author,
-                director: t.director,
-              });
-            });
-          });
-        });
+              // check for filtered researchLine. If so, check if current one is  the one filtered
+              if (filteredLine.value ==='' || filteredLine.value == rLine.name) {
+                rLine.thesis.forEach((t) => {
+                  list.value.push({
+                    title: t.title,
+                    date: t.date,
+                    author: t.author,
+                    director: t.director,
+                  });
+                })
+              }
+            })          
+          }
+        })        
+
+        maxPages.value = Math.ceil(
+          list.value.length / thesisPerPage
+        );
         list.value.sort((a, b) => (a.date <= b.date ? 1 : -1));
       }
 

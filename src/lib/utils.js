@@ -224,6 +224,7 @@ const organizeThesisData = (tesis_list, noName, filter = "") => {
 
   // Sort data
   countryNames.sort((a, b) => a.label.localeCompare(b.label, "ca"));
+  
   programes.sort((a, b) => {
     return a.name >= b.name ? 1 : -1
   });

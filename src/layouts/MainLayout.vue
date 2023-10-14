@@ -36,7 +36,6 @@ export default {
 
     const toggleFilter = (e) => {
       appStore.toggleFilter()
-      console.log('filter changed')
     };
 
     return {
