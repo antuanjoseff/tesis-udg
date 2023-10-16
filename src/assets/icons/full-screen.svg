@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="40" height="40" viewBox="0 0 40 40">
+  <defs>
+    <filter id="Rectángulo_111" x="-9" y="-4" width="58" height="58" filterUnits="userSpaceOnUse">
+      <feOffset dy="5" input="SourceAlpha"/>
+      <feGaussianBlur stdDeviation="3" result="blur"/>
+      <feFlood flood-opacity="0.161"/>
+      <feComposite operator="in" in2="blur"/>
+      <feComposite in="SourceGraphic"/>
+    </filter>
+    <clipPath id="clip-buton_1">
+      <rect width="40" height="40"/>
+    </clipPath>
+  </defs>
+  <g id="buton_1" data-name="buton – 1" clip-path="url(#clip-buton_1)">
+    <rect width="40" height="40" fill="#fff"/>
+    <g transform="matrix(1, 0, 0, 1, 0, 0)" filter="url(#Rectángulo_111)">
+      <rect id="Rectángulo_111-2" data-name="Rectángulo 111" width="40" height="40" fill="#11172b"/>
+    </g>
+    <path id="Icon_material-fullscreen" data-name="Icon material-fullscreen" d="M10.317,20.179H7.5v7.044h7.044V24.4H10.317ZM7.5,14.544h2.817V10.317h4.226V7.5H7.5ZM24.4,24.4H20.179v2.817h7.044V20.179H24.4ZM20.179,7.5v2.817H24.4v4.226h2.817V7.5Z" transform="translate(2.639 2.639)" fill="#fff"/>
+  </g>
+</svg>

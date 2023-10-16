@@ -15,7 +15,7 @@
   <!-- RELOAD TEMPLATE -->
   <template>
     <div ref="reloadButton" id="control-reload-container">
-      <button class="maplibregl-ctrl reload-ctrl" @click="reloadPage">R</button>
+      <button class="maplibregl-ctrl reload-ctrl" @click="reloadPage"></button>
     </div>
   </template>
 
@@ -523,12 +523,41 @@ export default {
 
 .reload-ctrl,
 .filter-ctrl {
-  font-size: 16px;
   margin: 0 2px 0 0;
   padding: 4px 8px;
 }
 
 .maplibregl-ctrl-compass {
   display: none !important;
+}
+
+.map .maplibregl-ctrl.reload-ctrl,
+.map .maplibregl-ctrl.filter-ctrl,
+.map .maplibregl-ctrl-group button {
+  width: 40px;
+  height: 40px;
+}
+.map .maplibregl-ctrl.reload-ctrl {
+  background-image: url("assets/icons/refresh.svg");
+}
+
+.map .maplibregl-ctrl button.maplibregl-ctrl-zoom-in .maplibregl-ctrl-icon {
+  background-image: url("assets/icons/zoomin.svg");
+}
+
+.map .maplibregl-ctrl button.maplibregl-ctrl-zoom-out .maplibregl-ctrl-icon {
+  background-image: url("assets/icons/zoomout.svg");
+}
+
+.map .maplibregl-ctrl button.maplibregl-ctrl-fullscreen .maplibregl-ctrl-icon {
+  background-image: url("assets/icons/full-screen.svg");
+}
+
+.map .maplibregl-ctrl button.maplibregl-ctrl-shrink .maplibregl-ctrl-icon {
+  background-image: url("assets/icons/full-screen-selected.svg");
+}
+
+.map .maplibregl-ctrl.filter-ctrl {
+  background-image: url("assets/icons/filters.svg");
 }
 </style>

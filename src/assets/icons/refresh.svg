@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="40" height="40" viewBox="0 0 40 40">
+  <defs>
+    <filter id="Rectángulo_111" x="-9" y="-4" width="58" height="58" filterUnits="userSpaceOnUse">
+      <feOffset dy="5" input="SourceAlpha"/>
+      <feGaussianBlur stdDeviation="3" result="blur"/>
+      <feFlood flood-opacity="0.161"/>
+      <feComposite operator="in" in2="blur"/>
+      <feComposite in="SourceGraphic"/>
+    </filter>
+    <clipPath id="clip-buton">
+      <rect width="40" height="40"/>
+    </clipPath>
+  </defs>
+  <g id="buton" clip-path="url(#clip-buton)">
+    <rect width="40" height="40" fill="#fff"/>
+    <g transform="matrix(1, 0, 0, 1, 0, 0)" filter="url(#Rectángulo_111)">
+      <rect id="Rectángulo_111-2" data-name="Rectángulo 111" width="40" height="40" fill="#11172b"/>
+    </g>
+    <g id="Icon_feather-refresh-ccw" data-name="Icon feather-refresh-ccw" transform="translate(7.5 6.497)">
+      <path id="Trazado_675" data-name="Trazado 675" d="M1.5,6v5.947H7.447" transform="translate(0 -0.508)" fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="3"/>
+      <path id="Trazado_676" data-name="Trazado 676" d="M31.447,26.947V21H25.5" transform="translate(-8.142 -5.596)" fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="3"/>
+      <path id="Trazado_677" data-name="Trazado 677" d="M20.817,10.448A8.92,8.92,0,0,0,6.1,7.118L1.5,11.439M23.305,15.4l-4.6,4.321a8.92,8.92,0,0,1-14.718-3.33" fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="3"/>
+    </g>
+  </g>
+</svg>

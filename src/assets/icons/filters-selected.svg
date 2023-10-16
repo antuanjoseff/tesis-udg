@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="40" height="40" viewBox="0 0 40 40">
+  <defs>
+    <filter id="Rectángulo_111" x="-9" y="-4" width="58" height="58" filterUnits="userSpaceOnUse">
+      <feOffset dy="5" input="SourceAlpha"/>
+      <feGaussianBlur stdDeviation="3" result="blur"/>
+      <feFlood flood-opacity="0.161"/>
+      <feComposite operator="in" in2="blur"/>
+      <feComposite in="SourceGraphic"/>
+    </filter>
+    <clipPath id="clip-buton_3">
+      <rect width="40" height="40"/>
+    </clipPath>
+  </defs>
+  <g id="buton_3" data-name="buton – 3" clip-path="url(#clip-buton_3)">
+    <rect width="40" height="40" fill="#fff"/>
+    <g transform="matrix(1, 0, 0, 1, 0, 0)" filter="url(#Rectángulo_111)">
+      <rect id="Rectángulo_111-2" data-name="Rectángulo 111" width="40" height="40" fill="#fff"/>
+    </g>
+    <g id="Icon_ionic-ios-options" data-name="Icon ionic-ios-options" transform="translate(5.248 4.748)">
+      <path id="Trazado_678" data-name="Trazado 678" d="M17.12,26.063a2.191,2.191,0,0,1,4.015,0h4.119a.878.878,0,0,1,.875.875h0a.878.878,0,0,1-.875.875H21.135a2.191,2.191,0,0,1-4.015,0H4.25a.878.878,0,0,1-.875-.875h0a.878.878,0,0,1,.875-.875Z" transform="translate(0 -4.248)" fill="#11172b"/>
+      <path id="Trazado_679" data-name="Trazado 679" d="M8.369,16.5a2.191,2.191,0,0,1,4.015,0h12.87a.878.878,0,0,1,.875.875h0a.878.878,0,0,1-.875.875H12.383a2.191,2.191,0,0,1-4.015,0H4.25a.878.878,0,0,1-.875-.875h0A.878.878,0,0,1,4.25,16.5Z" transform="translate(0 -2.124)" fill="#11172b"/>
+      <path id="Trazado_680" data-name="Trazado 680" d="M17.12,6.938a2.191,2.191,0,0,1,4.015,0h4.119a.878.878,0,0,1,.875.875h0a.878.878,0,0,1-.875.875H21.135a2.191,2.191,0,0,1-4.015,0H4.25a.878.878,0,0,1-.875-.875h0a.878.878,0,0,1,.875-.875Z" fill="#11172b"/>
+    </g>
+  </g>
+</svg>
