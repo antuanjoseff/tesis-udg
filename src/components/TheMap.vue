@@ -1,31 +1,36 @@
 <template>
   <div class="map-wrap">
-    <a href="https://www.maptiler.com" class="watermark"
-      ><img
-        src="https://api.maptiler.com/resources/logo.svg"
-        alt="MapTiler logo"
-    /></a>
     <div class="map" ref="mapContainer"></div>
     <toggle-layer @toggleLayerType="toggleLayerType" />
-    <search-country 
-      @countrySelected="countrySelected" 
-      @resetCountrySearch="resetCountrySearch" 
+    <search-country
+      @countrySelected="countrySelected"
+      @resetCountrySearch="resetCountrySearch"
     />
     <filter-box
       @filterSet="handleFilter"
       @filterReset="handleResetFilter"
     ></filter-box>
   </div>
+
+  <!-- RELOAD TEMPLATE -->
+  <template>
+    <div ref="reloadButton" id="control-reload-container">
+      <button class="maplibregl-ctrl reload-ctrl" @click="reloadPage">R</button>
+    </div>
+  </template>
+
+  <!-- FILTER TEMPLATE -->
   <template>
     <div ref="filterButton" id="control-filter-container">
       <button
-        id="geocode-button"
-        class="maplibregl-ctrl filter-ctrl "
+        id="filter-button"
+        class="maplibregl-ctrl filter-ctrl"
         @click="toggleFilter"
-      >F</button>
-    </div>    
+      >
+        F
+      </button>
+    </div>
   </template>
-
 </template>
 
 <script>
@@ -33,15 +38,17 @@ import { useAppStore } from "../stores/appStore.js";
 import ToggleLayer from "components/ToggleLayer.vue";
 import SearchCountry from "components/SearchCountry.vue";
 import FilterBox from "components/FilterBox.vue";
-import { Map, Popup, NavigationControl, LngLatBounds } from "maplibre-gl";
-import { ref, shallowRef, onMounted, onUnmounted, markRaw, computed } from "vue";
-import { addLayersToMap, flyToCountry } from "src/lib/maplib.js";
+import { Map, Popup, NavigationControl, FullscreenControl } from "maplibre-gl";
 import {
-  formatPopup,
-  organizeThesisData,
-  getData,
-  addThesisDataTo,
-} from "src/lib/utils.js";
+  ref,
+  shallowRef,
+  onMounted,
+  onUnmounted,
+  markRaw,
+  computed,
+} from "vue";
+import { addLayersToMap, flyToCountry } from "src/lib/maplib.js";
+import { organizeThesisData, getData, addThesisDataTo } from "src/lib/utils.js";
 
 export default {
   name: "TheMap",
@@ -50,7 +57,8 @@ export default {
   setup(props, context) {
     const mapContainer = shallowRef(null);
     const map = shallowRef(null);
-    const filterButton = ref()
+    const reloadButton = ref();
+    const filterButton = ref();
     let popup;
     let debounceTimer = 50;
     let hoveredStateId = null;
@@ -65,16 +73,20 @@ export default {
       return appStore.isClustered;
     });
 
+    const filteredProgram = computed(() => {
+      return appStore.getFilteredProgram;
+    });
+
     const toggleLayerType = () => {
       appStore.setClustered(!appStore.isClustered);
       if (isClustered.value) {
         map.value.setLayoutProperty("countries", "visibility", "none");
         map.value.setLayoutProperty("clusters", "visibility", "visible");
         map.value.setLayoutProperty("clustered-count", "visibility", "visible");
-        map.value.setLayoutProperty( "unclustered", "visibility", "visible");
-        // map.value.setLayoutProperty( "unclustered-count", "visibility", "visible");        
+        map.value.setLayoutProperty("unclustered", "visibility", "visible");
+        // map.value.setLayoutProperty( "unclustered-count", "visibility", "visible");
       } else {
-        map.value.setLayoutProperty("countries", "visibility", "visible");        
+        map.value.setLayoutProperty("countries", "visibility", "visible");
         map.value.setLayoutProperty("clusters", "visibility", "none");
         map.value.setLayoutProperty("clustered-count", "visibility", "none");
         map.value.setLayoutProperty("unclustered", "visibility", "none");
@@ -116,29 +128,30 @@ export default {
         map.value.addImage("marker", image);
       });
 
-      const clickFilterButton = (e) => {
-        console.log(e)
-      }
-      class GeocodeControl {
-        onAdd(map) {
-
-          // const template = document.createElement("template");
-          // template.innerHTML = filterButton.value.innerHTML
-          return filterButton.value
+      class CustomControl {
+        constructor(refTemplate) {
+          this.template = refTemplate;
         }
+        onAdd(map) {
+          return this.template.value;
+        }
+        onRemove(map) {}
       }
-
 
       map.value.once("load", async () => {
-        const geocodeControl = new GeocodeControl();
-        map.value.addControl(geocodeControl, "top-left");
+        const reloadControl = new CustomControl(reloadButton);
+        map.value.addControl(reloadControl, "top-left");
+
+        map.value.addControl(new FullscreenControl(), "top-left");
+
+        const filterControl = new CustomControl(filterButton);
+        map.value.addControl(filterControl, "top-left");
 
         // This code runs once the base style has finished loading.
         const name_expr = ["get", "name"];
         var thesisUrl = process.env.DEV
           ? "/tesis_api.json"
           : "//sigserver4.udg.edu/tesis/spa/tesis_api.json";
-
 
         var centroidsUrl = process.env.DEV
           ? "/centroids.json"
@@ -147,21 +160,21 @@ export default {
         var countriesUrl = process.env.DEV
           ? "/countries.json"
           : "//sigserver4.udg.edu/tesis/spa/countries.json";
-        
+
         originalData = await getData(thesisUrl);
         centroidsData = await getData(centroidsUrl);
-        
-        const noName = appStore.getLRnoName
+
+        const noName = appStore.getLRnoName;
         thesisData = organizeThesisData(originalData, noName);
         countriesWithThesis = thesisData.paisos;
-        const keys = Object.keys(countriesWithThesis)
+        const keys = Object.keys(countriesWithThesis);
 
         // Remove centroids with no thesis to avoid cluster centroids with 0 thesis
         const features = centroidsData.features.filter((centroid) => {
-          return keys.includes(centroid.properties.iso_a3.toUpperCase())
-        })
+          return keys.includes(centroid.properties.iso_a3.toUpperCase());
+        });
 
-        centroidsData.features = features
+        centroidsData.features = features;
         countriesData = await getData(countriesUrl);
 
         appStore.setProgrames(thesisData.programes.sort());
@@ -208,14 +221,14 @@ export default {
       });
 
       map.value.on("click", "countries", (e) => {
-        openCountryGraph(e);
+        openModal(e);
       });
 
       map.value.on("click", "clusters", (e) => {
         const features = map.value.queryRenderedFeatures(e.point, {
           layers: ["clusters"],
         });
-        console.log(features[0])
+
         const clusterId = features[0].properties.cluster_id;
         map.value
           .getSource("clusters")
@@ -230,10 +243,10 @@ export default {
       });
 
       map.value.on("click", "unclustered", (e) => {
-        openCountryGraph(e);
+        openModal(e);
       });
 
-      const openCountryGraph = (e) => {
+      const openModal = (e) => {
         const selected = e.features[0];
         const code = selected.properties.iso_a3;
         const info = countriesWithThesis[code];
@@ -241,7 +254,11 @@ export default {
 
         // flyToCountry(map, countriesData, code);
         appStore.setSelectedCountry({ code, info, nTesis });
-        appStore.setCountryModalVisibility(true);
+        if (filteredProgram.value === "") {
+          appStore.setProgramModalVisibility(true);
+        } else {
+          appStore.setLRModalVisibility(true);
+        }
       };
 
       map.value.on("mousemove", "unclustered", () => {
@@ -329,93 +346,94 @@ export default {
     };
 
     const handleFilter = (filter) => {
-      let filteredCountryKeys = []
-      let filteredCountriesData = JSON.parse(JSON.stringify(countriesData))
-      let filteredCentroidsData = JSON.parse(JSON.stringify(centroidsData))
-          
+      let filteredCountryKeys = [];
+      let filteredCountriesData = JSON.parse(JSON.stringify(countriesData));
+      let filteredCentroidsData = JSON.parse(JSON.stringify(centroidsData));
+
       filteredCountriesData.features.forEach((country, idx) => {
-        const nTesis =  getThesisByProgramAndCountry(
-          country.properties.iso_a3, filter
-        )
-        filteredCountriesData.features[idx].properties.tesis = nTesis
+        const nTesis = getThesisByProgramAndCountry(
+          country.properties.iso_a3,
+          filter
+        );
+        filteredCountriesData.features[idx].properties.tesis = nTesis;
         if (nTesis) {
-          const countryCode = filteredCountriesData.features[idx].properties.iso_a3
-          if (!filteredCountryKeys.includes(countryCode)){
-            filteredCountryKeys.push(countryCode)
+          const countryCode =
+            filteredCountriesData.features[idx].properties.iso_a3;
+          if (!filteredCountryKeys.includes(countryCode)) {
+            filteredCountryKeys.push(countryCode);
           }
         }
-      })
-      
+      });
+
       filteredCentroidsData.features.forEach((country, idx) => {
-        filteredCentroidsData.features[idx].properties.tesis = getThesisByProgramAndCountry(
-          country.properties.iso_a3, filter
-        )
-      })
+        filteredCentroidsData.features[idx].properties.tesis =
+          getThesisByProgramAndCountry(country.properties.iso_a3, filter);
+      });
 
       const features = filteredCentroidsData.features.filter((feature) => {
-        return filteredCountryKeys.includes(feature.properties.iso_a3)
-      })
-      
-      filteredCentroidsData.features = features
+        return filteredCountryKeys.includes(feature.properties.iso_a3);
+      });
+
+      filteredCentroidsData.features = features;
 
       map.value.getSource("countries").setData(filteredCountriesData);
-      map.value.getSource("clusters").setData(filteredCentroidsData);      
-    
-      const researchLines = getProgramResearchLines(filter.program)
-      appStore.setResearchLines(researchLines)     
+      map.value.getSource("clusters").setData(filteredCentroidsData);
 
+      const researchLines = getProgramResearchLines(filter.program);
+      appStore.setResearchLines(researchLines);
     };
 
     const getProgramResearchLines = (program) => {
       const idx = thesisData.programes.findIndex((p) => {
-          return p.name === program
-        })
-      
-        if (idx !==  -1) {
-          return thesisData.programes[idx].researchLines
-        } else {
-          return []
-        }
-      
-    }
+        return p.name === program;
+      });
 
-    const getThesisByProgramAndCountry = ((iso_a3, filter) => {
+      if (idx !== -1) {
+        return thesisData.programes[idx].researchLines;
+      } else {
+        return [];
+      }
+    };
+
+    const getThesisByProgramAndCountry = (iso_a3, filter) => {
       if (Object.keys(thesisData.paisos).includes(iso_a3)) {
-        let idP = -1
-        let idRL = -1
+        let idP = -1;
+        let idRL = -1;
         idP = thesisData.paisos[iso_a3].programs.findIndex((f) => {
-          return (f.name === filter.program) 
-        })
+          return f.name === filter.program;
+        });
 
-        if (idP !== -1){
-          if (filter.researchLine === '') {
-            return thesisData.paisos[iso_a3].programs[idP].count
+        if (idP !== -1) {
+          if (filter.researchLine === "") {
+            return thesisData.paisos[iso_a3].programs[idP].count;
           } else {
-            idRL= thesisData.paisos[iso_a3].programs[idP].researchLines.findIndex((rl) => {
-              return rl.name === filter.researchLine
-            })
+            idRL = thesisData.paisos[iso_a3].programs[
+              idP
+            ].researchLines.findIndex((rl) => {
+              return rl.name === filter.researchLine;
+            });
             if (idRL !== -1) {
-              return thesisData.paisos[iso_a3].programs[idP].researchLines[idRL].count
+              return thesisData.paisos[iso_a3].programs[idP].researchLines[idRL]
+                .count;
             } else {
-              return 0
+              return 0;
             }
           }
         } else {
-          return 0
+          return 0;
         }
-
       } else {
-        return 0
+        return 0;
       }
-    })
+    };
 
-    const handleResetFilter= (filter) => {
-      if (filter.program === '') {
+    const handleResetFilter = (filter) => {
+      if (filter.program === "") {
         map.value.getSource("clusters").setData(centroidsData);
         map.value.getSource("countries").setData(countriesData);
         appStore.setCountryNames(thesisData.countryNames);
       } else {
-        handleFilter(filter)
+        handleFilter(filter);
       }
     };
 
@@ -425,20 +443,22 @@ export default {
           { source: "countries", id: element.id },
           { hover: false }
         );
-      })
+      });
     };
 
     const toggleFilter = (e) => {
-      context.emit('toggle-filter')
+      context.emit("toggle-filter");
     };
 
-    const filteredLine = (researchLine) => {
-      console.log(researchLine)
+    const reloadPage = (researchLine) => {
+      location.reload();
     };
 
     return {
       map,
       filterButton,
+      reloadButton,
+      reloadPage,
       toggleFilter,
       mapContainer,
       handleFilter,
@@ -446,7 +466,6 @@ export default {
       countrySelected,
       handleResetFilter,
       resetCountrySearch,
-      filteredLine
     };
   },
 };
@@ -497,30 +516,19 @@ export default {
   height: 100%;
 }
 
-.watermark {
-  position: absolute;
-  left: 10px;
-  bottom: 10px;
-  z-index: 999;
-}
-
-#geocode-container {
+#filter-container {
   display: inline-flex;
   margin: 20px;
 }
-#geocode-input,
-#geocode-button {
+
+.reload-ctrl,
+.filter-ctrl {
   font-size: 16px;
   margin: 0 2px 0 0;
   padding: 4px 8px;
 }
-#geocode-input {
-  width: 300px;
-}
 
-.filter-ctrl {
-  position: relative;
-  top: 10px;
-  left: 10px;
+.maplibregl-ctrl-compass {
+  display: none !important;
 }
 </style>

@@ -13,19 +13,21 @@ export const useAppStore = defineStore("counter", {
 
     selectedCountry: {},
 
-    selectedProgram: "", // Program selected from chart
+    programClickedOnChart: "", // Program selected from chart
 
-    filteredProgram: "", 
+    filteredProgram: "",
 
-    filteredLine: "", 
+    filteredLine: "",
 
     nThesisInLR: 0,
 
-    countryModalVisibility: false,
+    programModalVisibility: false,
+
+    LRModalVisibility: false,
 
     thesisPerPage: 30,
 
-    LRnoName: 'Sense determinar',
+    LRnoName: "Sense determinar",
 
     filterIsVisible: false,
   }),
@@ -39,7 +41,7 @@ export const useAppStore = defineStore("counter", {
 
     getSelectedCountry: (state) => state.selectedCountry,
 
-    getSelectedProgram: (state) => state.selectedProgram,
+    getProgramClickedOnChart: (state) => state.programClickedOnChart,
 
     getFilteredProgram: (state) => state.filteredProgram,
 
@@ -47,7 +49,9 @@ export const useAppStore = defineStore("counter", {
 
     getCountryNames: (state) => state.countryNames,
 
-    getCountryModalVisibility: (state) => state.countryModalVisibility,
+    getProgramModalVisibility: (state) => state.programModalVisibility,
+
+    getLRModalVisibility: (state) => state.LRModalVisibility,
 
     getThesisPerPage: (state) => state.thesisPerPage,
 
@@ -55,7 +59,7 @@ export const useAppStore = defineStore("counter", {
 
     getLRnoName: (state) => state.LRnoName,
 
-    getFilterIsVisible: (state) => state.filterIsVisible
+    getFilterIsVisible: (state) => state.filterIsVisible,
   },
 
   actions: {
@@ -75,8 +79,8 @@ export const useAppStore = defineStore("counter", {
       this.countryNames = countries;
     },
 
-    setSelectedProgram(program) {
-      this.selectedProgram = program;
+    setProgramClickedOnChart(program) {
+      this.programClickedOnChart = program;
     },
 
     setFilteredProgram(program) {
@@ -95,8 +99,14 @@ export const useAppStore = defineStore("counter", {
       this.selectedCountry = data;
     },
 
-    setCountryModalVisibility(visibility) {
-      this.countryModalVisibility = visibility;
+    setProgramModalVisibility(visibility) {
+      this.LRModalVisibility = false;
+      this.programModalVisibility = visibility;
+    },
+
+    setLRModalVisibility(visibility) {
+      this.programModalVisibility = false;
+      this.LRModalVisibility = visibility;
     },
 
     toggleFilter(visibility) {

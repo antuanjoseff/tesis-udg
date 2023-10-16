@@ -1,8 +1,10 @@
 <template>
   <div class="app">
     <NavBar @clickPrograme="clickPrograme" @resetFilter="resetFilter" />
-    <TheMap ref="MAP" @toggleFilter="toggleFilter"/>
+    <TheMap ref="MAP" @toggleFilter="toggleFilter" />
+    <!-- FINESTRES MODALS -->
     <programs-modal></programs-modal>
+    <LRModal></LRModal>
   </div>
 </template>
 
@@ -12,6 +14,7 @@ import TheMap from "components/TheMap.vue";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { ref } from "vue";
 import ProgramsModal from "src/components/modals/ProgramsModal.vue";
+import LRModal from "src/components/modals/LRModal.vue";
 import { useAppStore } from "../stores/appStore.js";
 
 export default {
@@ -20,6 +23,7 @@ export default {
     NavBar,
     TheMap,
     ProgramsModal,
+    LRModal,
   },
   setup() {
     const appStore = useAppStore();
@@ -35,7 +39,7 @@ export default {
     };
 
     const toggleFilter = (e) => {
-      appStore.toggleFilter()
+      appStore.toggleFilter();
     };
 
     return {

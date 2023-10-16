@@ -1,7 +1,14 @@
 <template>
-  <q-dialog v-model="model" full-width full-height>
+  <q-dialog v-model="modalProgram" full-width full-height>
     <q-card class="dialog-container">
-      <q-card-section class="row items-center q-pb-none">
+      <q-card-section
+        class="row items-center close-card"
+        :class="filteredProgram != '' ? 'filtered' : ''"
+      >
+        <div v-if="filteredProgram" class="filter-msg">
+          <q-icon name="error_outline" size="lg" />
+          Hi ha un filtre aplicat
+        </div>
         <q-space />
         <q-btn
           icon="close"
@@ -110,19 +117,17 @@
       </q-card-section>
     </q-card>
   </q-dialog>
-  <!-- MODAL PER LES LÍNIES DE RECERCA -->
-  <LRModal></LRModal>
 </template>
 
 <script>
 import { useAppStore } from "src/stores/appStore.js";
 import ProgramsChart from "src/components/ProgramsChart.vue";
-import LRModal from "src/components/modals/LRModal.vue";
+
 import { computed, ref, onUpdated } from "vue";
 
 export default {
   name: "ProgramsModal",
-  components: { ProgramsChart, LRModal },
+  components: { ProgramsChart },
   emits: ["countrySelected"],
   setup(props, context) {
     const list = ref([]);
@@ -135,8 +140,8 @@ export default {
 
     const thesisPerPage = appStore.getThesisPerPage;
 
-    const model = computed(() => {
-      return appStore.getCountryModalVisibility;
+    const modalProgram = computed(() => {
+      return appStore.getProgramModalVisibility;
     });
 
     const filteredProgram = computed(() => {
@@ -148,7 +153,7 @@ export default {
     });
 
     const close = () => {
-      appStore.setCountryModalVisibility(false);
+      appStore.setProgramModalVisibility(false);
     };
 
     const selectedCountry = computed(() => {
@@ -189,14 +194,14 @@ export default {
       if (!list.value.length) {
         // Iterate all thesis of selected country
         selectedCountry.value.info.programs.forEach((p) => {
-          
           // check for filtered program. If so, check if current program is the one filtered
-          if (filteredProgram.value ==='' || filteredProgram.value == p.name) {
-          
+          if (filteredProgram.value === "" || filteredProgram.value == p.name) {
             p.researchLines.forEach((rLine) => {
-
               // check for filtered researchLine. If so, check if current one is  the one filtered
-              if (filteredLine.value ==='' || filteredLine.value == rLine.name) {
+              if (
+                filteredLine.value === "" ||
+                filteredLine.value == rLine.name
+              ) {
                 rLine.thesis.forEach((t) => {
                   list.value.push({
                     title: t.title,
@@ -204,15 +209,13 @@ export default {
                     author: t.author,
                     director: t.director,
                   });
-                })
+                });
               }
-            })          
+            });
           }
-        })        
+        });
 
-        maxPages.value = Math.ceil(
-          list.value.length / thesisPerPage
-        );
+        maxPages.value = Math.ceil(list.value.length / thesisPerPage);
         list.value.sort((a, b) => (a.date <= b.date ? 1 : -1));
       }
 
@@ -222,14 +225,14 @@ export default {
     };
 
     const showPage = (idx) => {
-      visibleDetails.value = []
+      visibleDetails.value = [];
       var first = (idx - 1) * thesisPerPage;
       var last = idx * thesisPerPage;
       visibleList.value = list.value.slice(first, last);
     };
 
     const selectedProgram = (program) => {
-      appStore.setSelectedProgram(program);
+      appStore.setProgramClickedOnChart(program);
     };
 
     onUpdated(() => {
@@ -248,7 +251,7 @@ export default {
       list,
       visibleList,
       visibleDetails,
-      model,
+      modalProgram,
       close,
       selectedCountry,
       selectedProgram,
@@ -260,6 +263,7 @@ export default {
       page,
       showPage,
       goUdG,
+      filteredProgram,
     };
   },
 };
@@ -316,7 +320,7 @@ button.custom:hover {
   border: 1px solid #00000029;
   padding: 20px;
   justify-content: space-between;
-  cursor:default;
+  cursor: default;
 }
 
 .details-container div {
@@ -335,5 +339,13 @@ ul.tesis-list li {
 ul.tesis-list li:hover {
   text-decoration: underline;
   cursor: pointer;
+}
+.close-card.filtered {
+  background: black;
+  color: white;
+}
+.filter-msg {
+  text-align: left;
+  font-size: 25px;
 }
 </style>

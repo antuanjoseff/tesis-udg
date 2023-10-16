@@ -1,7 +1,14 @@
 <template>
-  <q-dialog v-model="model" class="program-container" full-width>
+  <q-dialog v-model="modalVisibility" class="program-container" full-width>
     <q-card class="dialog-container">
-      <q-card-section class="row items-center q-pb-none">
+      <q-card-section
+        class="row items-center close-card"
+        :class="filteredProgram != '' ? 'filtered' : ''"
+      >
+        <div v-if="filteredProgram" class="filter-msg">
+          <q-icon name="error_outline" size="lg" />
+          Hi ha un filtre aplicat
+        </div>
         <q-space />
         <q-btn
           icon="close"
@@ -25,9 +32,8 @@
             />
           </div>
           <div class="chart-title">
-            <span class="text-weight-medium"
-              >Programa de doctorat:
-              {{ selectedProgram }}
+            <span class="text-weight-medium">
+              Programa de doctorat: {{ programName }}
             </span>
           </div>
         </div>
@@ -48,12 +54,18 @@
       </q-card-section>
 
       <q-card-section>
-        <div class="programa-doctorat">Linia de recerca</div>
+        <div class="programa-doctorat">Línia de recerca</div>
       </q-card-section>
 
       <q-card-section>
         <div class="text-center">
-          <LRChart :data="selectedCountry.info" :program="selectedProgram" />
+          <LRChart
+            :data="selectedCountry.info"
+            :title="
+              programClickedOnChart ? programClickedOnChart : filteredProgram
+            "
+            :subtitle="filteredLine"
+          />
         </div>
       </q-card-section>
 
@@ -148,8 +160,8 @@ export default {
 
     const thesisPerPage = appStore.getThesisPerPage;
 
-    const model = computed(() => {
-      return appStore.getSelectedProgram != "";
+    const modalVisibility = computed(() => {
+      return appStore.getLRModalVisibility;
     });
 
     const nThesisInLR = computed(() => {
@@ -157,11 +169,26 @@ export default {
     });
 
     const close = () => {
-      appStore.setSelectedProgram("");
+      appStore.setProgramClickedOnChart("");
+      appStore.setLRModalVisibility("false");
     };
 
-    const selectedProgram = computed(() => {
-      return appStore.getSelectedProgram;
+    const filteredProgram = computed(() => {
+      return appStore.getFilteredProgram;
+    });
+
+    const programClickedOnChart = computed(() => {
+      return appStore.getProgramClickedOnChart;
+    });
+
+    const programName = computed(() => {
+      return filteredProgram.value !== ""
+        ? filteredProgram.value
+        : programClickedOnChart.value;
+    });
+
+    const filteredLine = computed(() => {
+      return appStore.getFilteredLine;
     });
 
     const selectedCountry = computed(() => {
@@ -205,18 +232,21 @@ export default {
         );
 
         const element = data.filter((p) => {
-          return p.name == selectedProgram.value;
+          return p.name == programName.value;
         });
 
-        element[0].LR.forEach((lr) => {
-          lr.thesis.forEach((t) => {
-            list.value.push({
-              title: t.title,
-              date: t.date,
-              author: t.author,
-              director: t.director,
+        element[0].researchLines.forEach((lr) => {
+          if (filteredLine.value === "") {
+            lr.thesis.forEach((t) => {
+              addThesisToList(t);
             });
-          });
+          } else {
+            if (filteredLine.value === lr.name) {
+              lr.thesis.forEach((t) => {
+                addThesisToList(t);
+              });
+            }
+          }
         });
 
         maxPages.value = Math.ceil(list.value.length / thesisPerPage);
@@ -229,9 +259,18 @@ export default {
       visibleList.value = list.value.slice(first, last);
     };
 
+    const addThesisToList = (t) => {
+      list.value.push({
+        title: t.title,
+        date: t.date,
+        author: t.author,
+        director: t.director,
+      });
+    };
+
     const showPage = (idx) => {
       var first = (idx - 1) * thesisPerPage;
-      visibleDetails.value = []
+      visibleDetails.value = [];
       var last = idx * thesisPerPage;
       visibleList.value = list.value.slice(first, last);
     };
@@ -253,8 +292,11 @@ export default {
       list,
       visibleList,
       visibleDetails,
-      model,
-      selectedProgram,
+      modalVisibility,
+      filteredProgram,
+      filteredLine,
+      programName,
+      programClickedOnChart,
       close,
       selectedCountry,
       selectedCountryName,
@@ -342,6 +384,14 @@ ul.tesis-list li:hover {
 }
 .full-width div {
   min-width: 100%;
+}
+.close-card.filtered {
+  background: black;
+  color: white;
+}
+.filter-msg {
+  text-align: left;
+  font-size: 25px;
 }
 @media (min-width: 600px) {
   .q-dialog__inner--minimized > div {

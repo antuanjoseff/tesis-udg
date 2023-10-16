@@ -1,8 +1,6 @@
 <template>
   <div v-if="filterIsVisible" class="q-px-md filter-box">
-    <div class="filter-label q-py-md">
-      Selecciona:
-    </div>
+    <div class="filter-label q-py-md">Selecciona:</div>
     <div class="filter-program q-gutter-md row">
       <q-select
         label="Programes"
@@ -40,6 +38,7 @@
         color="white"
         bg-color="grey"
         clearable
+        :disable="!modelProgram"
         popup-content-class="qselect-options"
         @filter="filterResearchLineFn"
         @input-value="setModelLine"
@@ -66,58 +65,57 @@ export default {
     const stringProgramOptions = computed(() => {
       return appStore.getProgrames;
     });
-    
+
     const stringResearchLineOptions = computed(() => {
       return appStore.getResearchLines;
     });
-    
+
     const filterIsVisible = computed(() => {
       return appStore.getFilterIsVisible;
     });
 
     const programOptions = ref(JSON.stringify(stringProgramOptions.value));
     const researchLineOptions = computed(() => {
-      return appStore.getResearchLines
-    })
+      return appStore.getResearchLines;
+    });
 
     const setModelProgram = (val) => {
       if (val.length) {
-        context.emit("filterSet", { program: val, researchLine: '' });        
-        appStore.setFilteredProgram(val)
+        context.emit("filterSet", { program: val, researchLine: "" });
+        appStore.setFilteredProgram(val);
       }
       modelProgram.value = val;
-      modelLine.value = '';
+      modelLine.value = "";
     };
 
-
     const resetProgram = () => {
-      modelProgram.value = ''
-      appStore.setFilteredProgram('')
-      context.emit('filterReset', {
-        program: '',
-        researchLine: ''
-      })
-    }
+      modelProgram.value = "";
+      appStore.setFilteredProgram("");
+      context.emit("filterReset", {
+        program: "",
+        researchLine: "",
+      });
+    };
 
     const setModelLine = (val) => {
       if (val.length) {
         context.emit("filterSet", {
           program: modelProgram.value,
-          researchLine: val
+          researchLine: val,
         });
-        appStore.setFilteredLine(val)
+        appStore.setFilteredLine(val);
       }
       modelLine.value = val;
     };
 
     const resetLine = () => {
-      modelLine.value = ''
-      context.emit('filterReset', {
+      modelLine.value = "";
+      context.emit("filterReset", {
         program: modelProgram.value,
-        researchLine: '' 
-      })
-      appStore.setFilteredLine('')
-    }
+        researchLine: "",
+      });
+      appStore.setFilteredLine("");
+    };
 
     const filterProgramFn = (val, update, abort) => {
       update(() => {
@@ -159,32 +157,31 @@ export default {
       showSelectStyle,
       hideSelectStyle,
       resetProgram,
-      resetLine
+      resetLine,
     };
   },
 };
 </script>
 
 <style>
-
 .filter-box {
   width: 450px;
   position: absolute;
-  top: 20px;
-  left: 40px;
+  top: 10px;
+  left: 50px;
   background-color: black;
 }
 
-.filter-box .filter-label{
+.filter-box .filter-label {
   color: white;
   text-align: left;
   font-size: 24px;
 }
 
-.filter-box .q-field__labe){
+.filter-box .q-field__labe) {
   color: white !important;
 }
-.filter-box label.q-field.row{
+.filter-box label.q-field.row {
   width: 100% !important;
 }
 
@@ -193,6 +190,4 @@ export default {
   color: white;
   width: 400px;
 }
-
 </style>
-

@@ -19,17 +19,17 @@ import { useAppStore } from "../stores/appStore.js";
 
 export default {
   name: "LRChart",
-  props: ["data", "program"],
+  props: ["data", "title", "subtitle"],
   setup(props, context) {
     const appStore = useAppStore();
     const chartHeight = ref();
 
     const selectedProgram = computed(() => {
-      return appStore.getSelectedProgram;
+      return appStore.getProgramClickedOnChart;
     });
 
     const close = () => {
-      appStore.setSelectedProgram("");
+      appStore.setProgramClickOnChart("");
     };
 
     const options = {
@@ -46,28 +46,44 @@ export default {
       },
     };
 
-    const data = ref(props.data ? props.data : "");
-    const selected = ref(props.program ? props.program : "");
-
     onMounted(() => {
-      let labels, datasets;
+      let labels = [],
+        datasets = [];
+      const data = props.data ? props.data : "";
+      const selectedProgram = props.title ? props.title : "";
+      const selectedLine = props.title ? props.subtitle : "";
 
-      if (data.value && selected.value) {
+      if (data && selectedProgram) {
         let nTesis = 0;
-        let arr = JSON.parse(JSON.stringify(data.value.programs));
-        const programa = arr.filter((e) => {
-          return e.name === selected.value;
+        let arr = JSON.parse(JSON.stringify(data.programs));
+
+        const programa = arr.find((e) => {
+          return e.name == selectedProgram;
         });
-        programa[0].LR.sort((a, b) => {
-          return a.count >= b.count ? 1 : -1;
-        });
-        labels = programa[0].LR.map((p) => {
-          return p.name;
+        // programa[0].researchLines.sort((a, b) => {
+        //   return a.count >= b.count ? 1 : -1;
+        // });
+
+        programa.researchLines.forEach((p) => {
+          if (selectedLine === "") {
+            labels.push(p.name);
+          } else {
+            if (p.name === selectedLine) {
+              labels.push(p.name);
+            }
+          }
         });
 
-        datasets = programa[0].LR.map((p) => {
-          nTesis += p.count;
-          return p.count;
+        programa.researchLines.map((p) => {
+          if (selectedLine === "") {
+            nTesis += p.count;
+            datasets.push(p.count);
+          } else {
+            if (p.name == selectedLine) {
+              nTesis = p.count;
+              datasets.push(p.count);
+            }
+          }
         });
 
         appStore.setNThesisInLR(nTesis);
@@ -78,7 +94,7 @@ export default {
       ctx.height = chartHeight.value;
       ctx.width = "100%";
 
-      myChart = new Chart(ctx, {
+      let myChart = new Chart(ctx, {
         type: "doughnut",
         data: {
           labels: labels,
@@ -144,11 +160,11 @@ export default {
           boxSpan.style.borderWidth = item.lineWidth + "px";
           boxSpan.style.display = "inline-block";
           boxSpan.style.flexShrink = 0;
-          boxSpan.classList.add('box-color')
+          boxSpan.classList.add("box-color");
 
           // Text
           const textContainer = document.createElement("div");
-          textContainer.classList.add('box-label')
+          textContainer.classList.add("box-label");
           textContainer.style.color = item.fontColor;
           textContainer.style.margin = 0;
           textContainer.style.padding = 0;
@@ -182,10 +198,10 @@ export default {
 .main-container {
   border: 1px solid #11172b;
   padding: 20px;
-  display:flex;
+  display: flex;
   justify-content: center;
-  max-height: 550px;  
-  min-height: 400px;  
+  max-height: 550px;
+  min-height: 400px;
 }
 .chart-container {
   padding: 20px;
@@ -205,7 +221,7 @@ export default {
   display: flex;
   flex-direction: column;
   /* max-height: 500px; */
-  overflow:auto;
+  overflow: auto;
   padding-right: 20px;
 }
 
@@ -229,7 +245,7 @@ export default {
 }
 
 .leg-element .box-color {
-  width:75px;
+  width: 75px;
   height: 40px;
   margin-right: 10px;
 }

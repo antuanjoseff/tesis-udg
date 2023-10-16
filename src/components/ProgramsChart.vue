@@ -130,7 +130,8 @@ export default {
       if (points.length) {
         let firstPoint = points[0];
         const program = myChart.data.labels[firstPoint.index];
-        appStore.setSelectedProgram(program);
+        appStore.setProgramClickedOnChart(program);
+        appStore.setLRModalVisibility(true);
         context.emit("selectedProgram", program);
       }
     };
