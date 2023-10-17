@@ -15,7 +15,9 @@
   <!-- RELOAD TEMPLATE -->
   <template>
     <div ref="reloadButton" id="control-reload-container">
-      <button class="maplibregl-ctrl reload-ctrl" @click="reloadPage"></button>
+      <button class="maplibregl-ctrl reload-ctrl" @click="reloadPage">
+        <span class="maplibregl-ctrl-icon" aria-hidden="true"></span>
+      </button>
     </div>
   </template>
 
@@ -25,9 +27,10 @@
       <button
         id="filter-button"
         class="maplibregl-ctrl filter-ctrl"
+        :class="filterIsVisible ? 'active' : ''"
         @click="toggleFilter"
       >
-        F
+        <span class="maplibregl-ctrl-icon" aria-hidden="true"></span>
       </button>
     </div>
   </template>
@@ -60,7 +63,7 @@ export default {
     const reloadButton = ref();
     const filterButton = ref();
     let popup;
-    let debounceTimer = 50;
+    let debounceTimer = 250;
     let hoveredStateId = null;
     let centroidsData,
       countriesData,
@@ -71,6 +74,10 @@ export default {
 
     const isClustered = computed(() => {
       return appStore.isClustered;
+    });
+
+    const filterIsVisible = computed(() => {
+      return appStore.getFilterIsVisible;
     });
 
     const filteredProgram = computed(() => {
@@ -218,6 +225,7 @@ export default {
       popup = new Popup({
         closeButton: false,
         closeOnClick: false,
+        offset: [0, -10],
       });
 
       map.value.on("click", "countries", (e) => {
@@ -456,6 +464,7 @@ export default {
 
     return {
       map,
+      filterIsVisible,
       filterButton,
       reloadButton,
       reloadPage,
@@ -523,8 +532,6 @@ export default {
 
 .reload-ctrl,
 .filter-ctrl {
-  margin: 0 2px 0 0;
-  padding: 4px 8px;
 }
 
 .maplibregl-ctrl-compass {
@@ -532,12 +539,28 @@ export default {
 }
 
 .map .maplibregl-ctrl.reload-ctrl,
-.map .maplibregl-ctrl.filter-ctrl,
+.map .maplibregl-ctrl.filter-ctrl {
+  background-color: transparent;
+  border: 0;
+  box-sizing: border-box;
+  cursor: pointer;
+  display: block;
+  height: 40px;
+  outline: none;
+  padding: 0;
+}
 .map .maplibregl-ctrl-group button {
   width: 40px;
   height: 40px;
 }
-.map .maplibregl-ctrl.reload-ctrl {
+
+.maplibregl-ctrl-icon {
+  display: block;
+  width: 40px;
+  height: 40px;
+}
+
+.map .maplibregl-ctrl.reload-ctrl .maplibregl-ctrl-icon {
   background-image: url("assets/icons/refresh.svg");
 }
 
@@ -557,7 +580,11 @@ export default {
   background-image: url("assets/icons/full-screen-selected.svg");
 }
 
-.map .maplibregl-ctrl.filter-ctrl {
+.map .maplibregl-ctrl.filter-ctrl span.maplibregl-ctrl-icon {
   background-image: url("assets/icons/filters.svg");
+}
+
+.map .maplibregl-ctrl.filter-ctrl.active span.maplibregl-ctrl-icon {
+  background-image: url("assets/icons/filters-selected.svg");
 }
 </style>

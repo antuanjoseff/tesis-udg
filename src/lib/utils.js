@@ -83,18 +83,6 @@ const getCountryAbstract = (tesis_list, code) => {
   return { total, abstract };
 };
 
-const formatDate = (strDate) => {
-  if (typeof(strDate) === 'string') {
-    const date = new Date(strDate)
-    const year = date.getFullYear();
-    // const month = String(date.getMonth() + 1).padStart(2, "0");
-    const month = date.toLocaleString('default', { month: 'short' });
-    const day = String(date.getDate()).padStart(2, "0");
-    return `${day}-${month}-${year}`;
-  } else {
-    return ''
-  }
-}
 const organizeThesisData = (tesis_list, noName, filter = "") => {
   var result = {};
   var programes = [];
@@ -112,28 +100,28 @@ const organizeThesisData = (tesis_list, noName, filter = "") => {
   }
 
   data.forEach((tesis) => {
-    if (tesis.LiniaRecerca === '') {
-      tesis.LiniaRecerca = noName
+    if (tesis.LiniaRecerca === "") {
+      tesis.LiniaRecerca = noName;
     }
 
     const foundProgram = programes.find((e) => {
-      return e.name === tesis.Pla
-    })
+      return e.name === tesis.Pla;
+    });
 
     if (!foundProgram) {
       programes.push({
         name: tesis.Pla,
-        researchLines: [tesis.LiniaRecerca]
+        researchLines: [tesis.LiniaRecerca],
       });
     } else {
       const foundLR = foundProgram.researchLines.find((lr) => {
-        return lr === tesis.LiniaRecerca
-      })
+        return lr === tesis.LiniaRecerca;
+      });
       if (!foundLR) {
-        foundProgram.researchLines.push(tesis.LiniaRecerca)
+        foundProgram.researchLines.push(tesis.LiniaRecerca);
       }
     }
-       
+
     if (tesis.PaisCodi in result) {
       result[tesis.PaisCodi].count += 1;
       // Check if Pla already exists
@@ -152,7 +140,7 @@ const organizeThesisData = (tesis_list, noName, filter = "") => {
               thesis: [
                 {
                   title: tesis.Titol,
-                  date: formatDate(tesis.DataLectura),
+                  date: tesis.DataLectura,
                   author: tesis.Doctorand,
                   director: tesis.PrimerDirector,
                 },
@@ -181,8 +169,12 @@ const organizeThesisData = (tesis_list, noName, filter = "") => {
             ],
           });
         } else {
-          result[tesis.PaisCodi].programs[idxProgram].researchLines[idxLR].count += 1;
-          result[tesis.PaisCodi].programs[idxProgram].researchLines[idxLR].thesis.push({
+          result[tesis.PaisCodi].programs[idxProgram].researchLines[
+            idxLR
+          ].count += 1;
+          result[tesis.PaisCodi].programs[idxProgram].researchLines[
+            idxLR
+          ].thesis.push({
             title: tesis.Titol,
             date: tesis.DataLectura,
             author: tesis.Doctorand,
@@ -224,15 +216,40 @@ const organizeThesisData = (tesis_list, noName, filter = "") => {
 
   // Sort data
   countryNames.sort((a, b) => a.label.localeCompare(b.label, "ca"));
-  
+
   programes.sort((a, b) => {
-    return a.name >= b.name ? 1 : -1
+    return a.name >= b.name ? 1 : -1;
   });
 
   programes.forEach((p, idx) => {
-    programes[idx].researchLines = p.researchLines.sort()
-  })
-  
+    programes[idx].researchLines = p.researchLines.sort();
+  });
+
+  // Sort thesis by date
+  Object.keys(result).forEach((iso_a3) => {
+    result[iso_a3].programs.forEach((program, idP) => {
+      program.researchLines.forEach((researchLine, idL) => {
+        result[iso_a3].programs[idP].researchLines[idL].thesis.sort((a, b) => {
+          return a.date >= b.date ? 1 : -1;
+        });
+      });
+    });
+  });
+
+  // Object.keys(result).forEach((iso_a3) => {
+  //   result[iso_a3].programs.forEach((program, idP) => {
+  //     program.researchLines.forEach((researchLine, idL) => {
+  //       if (result[iso_a3].programs[idP].researchLines[idL].thesis.length > 5) {
+  //         result[iso_a3].programs[idP].researchLines[idL].thesis =
+  //           researchLine.thesis.forEach((t) => {
+  //             console.log(t.date);
+  //           });
+  //         console.log("...............................");
+  //       }
+  //     });
+  //   });
+  // });
+
   return { programes: programes, paisos: result, countryNames };
 };
 

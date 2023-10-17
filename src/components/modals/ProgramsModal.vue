@@ -84,7 +84,7 @@
           <li v-for="(item, index) in visibleList" :key="index">
             <div>
               <div :id="index" @click="toggleDetail(item, index)">
-                {{ item.date }} - {{ item.title }}
+                {{ item.formattedDate }} - {{ item.title }}
               </div>
               <div
                 v-if="visibleDetails.includes(index)"
@@ -189,6 +189,20 @@ export default {
       }
     };
 
+    const formatDate = (strDate) => {
+      if (typeof strDate === "string") {
+        const [y, m, d] = strDate.split("-");
+        const date = new Date(y, m - 1, d);
+        const year = date.getFullYear();
+        // const month = String(date.getMonth() + 1).padStart(2, "0");
+        const month = date.toLocaleString("default", { month: "short" });
+        const day = String(date.getDate()).padStart(2, "0");
+        return `${day}-${month}-${year}`;
+      } else {
+        return "";
+      }
+    };
+
     const toggleThesis = () => {
       isVisible.value = !isVisible.value;
       if (!list.value.length) {
@@ -208,6 +222,7 @@ export default {
                     date: t.date,
                     author: t.author,
                     director: t.director,
+                    formattedDate: formatDate(t.date),
                   });
                 });
               }

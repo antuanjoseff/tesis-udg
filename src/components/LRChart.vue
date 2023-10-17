@@ -21,6 +21,7 @@ export default {
   name: "LRChart",
   props: ["data", "title", "subtitle"],
   setup(props, context) {
+    let myChart;
     const appStore = useAppStore();
     const chartHeight = ref();
 
@@ -33,6 +34,10 @@ export default {
     };
 
     const options = {
+      cutout: "70%",
+      layout: {
+        padding: 30,
+      },
       plugins: {
         htmlLegend: {
           // ID of the container to put the legend in
@@ -74,7 +79,8 @@ export default {
           }
         });
 
-        programa.researchLines.map((p) => {
+        // let offsets = [];
+        programa.researchLines.map((p, idx) => {
           if (selectedLine === "") {
             nTesis += p.count;
             datasets.push(p.count);
@@ -94,20 +100,36 @@ export default {
       ctx.height = chartHeight.value;
       ctx.width = "100%";
 
-      let myChart = new Chart(ctx, {
+      myChart = new Chart(ctx, {
         type: "doughnut",
         data: {
           labels: labels,
           datasets: [
             {
               data: datasets,
+              // offset: offsets,
             },
           ],
         },
         options: options,
         plugins: [htmlLegendPlugin],
       });
+
+      ctx.onclick = clickPieSlice;
     });
+
+    const clickPieSlice = (click) => {
+      const slice = myChart.getElementsAtEventForMode(
+        click,
+        "nearest",
+        { interaction: true },
+        true
+      );
+      if (slice.length) {
+        const pieSlice = slice[0];
+        console.log(pieSlice);
+      }
+    };
 
     const getOrCreateLegendList = (chart, id) => {
       const legendContainer = document.getElementById(id);

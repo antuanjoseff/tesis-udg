@@ -14,7 +14,7 @@
         input-debounce="0"
         :options="programOptions"
         style="width: 250px; padding-bottom: 32px"
-        color="white"
+        color="orange"
         bg-color="grey"
         clearable
         popup-content-class="qselect-options"
@@ -35,7 +35,7 @@
         input-debounce="0"
         :options="researchLineOptions"
         style="width: 250px; padding-bottom: 32px"
-        color="white"
+        color="orange"
         bg-color="grey"
         clearable
         :disable="!modelProgram"
@@ -168,7 +168,7 @@ export default {
   width: 450px;
   position: absolute;
   top: 10px;
-  left: 50px;
+  left: 60px;
   background-color: black;
 }
 
@@ -189,5 +189,17 @@ export default {
   background: black !important;
   color: white;
   width: 400px;
+}
+
+.filter-program .q-field__label,
+.filter-program input,
+.filter-linia-recerca .q-field__label,
+.filter-linia-recerca input {
+  color: white;
+}
+
+.filter-program .q-field--filled .q-field__control,
+.filter-linia-recerca .q-field--filled .q-field__control {
+  border-radius: 0;
 }
 </style>
