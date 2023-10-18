@@ -39,6 +39,13 @@ export default {
         padding: 30,
       },
       plugins: {
+        tooltip: {
+          callbacks: {
+            label: function (tooltipItem) {
+              return `  ${tooltipItem.formattedValue}`;
+            },
+          },
+        },
         htmlLegend: {
           // ID of the container to put the legend in
           containerID: "legend-container",
@@ -69,6 +76,9 @@ export default {
         //   return a.count >= b.count ? 1 : -1;
         // });
 
+        programa.researchLines.sort((a, b) => {
+          return a.name >= b.name ? 1 : -1;
+        });
         programa.researchLines.forEach((p) => {
           if (selectedLine === "") {
             labels.push(p.name);

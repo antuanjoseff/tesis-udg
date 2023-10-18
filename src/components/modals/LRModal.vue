@@ -1,5 +1,10 @@
 <template>
-  <q-dialog v-model="modalVisibility" class="program-container" full-width>
+  <q-dialog
+    v-model="modalVisibility"
+    class="program-container"
+    full-width
+    position="left"
+  >
     <q-card class="dialog-container">
       <q-card-section
         class="row items-center close-card"
@@ -25,10 +30,11 @@
         <div class="text-left flex chart-breadcrumb">
           <div>
             <q-icon
+              v-if="programClickedOnChart"
               name="arrow_back"
               size="xl"
-              class="q-mr-md"
-              @click="close"
+              class="q-mr-md arrow-back"
+              @click="goBack"
             />
           </div>
           <div class="chart-title">
@@ -58,7 +64,7 @@
       </q-card-section>
 
       <q-card-section>
-        <div class="text-center">
+        <div class="text-center" v-if="!filteredLine">
           <LRChart
             :data="selectedCountry.info"
             :title="
@@ -90,22 +96,15 @@
         </div>
       </q-card-section>
       <q-card-section v-if="isVisible">
-        <div class="q-pa-lg flex flex-center">
-          <q-pagination
-            v-if="maxPages > 1"
-            v-model="page"
-            :max="maxPages"
-            :max-pages="10"
-            color="orange"
-            :boundary-numbers="false"
-            @update:model-value="showPage"
-          />
-        </div>
         <ul class="tesis-list">
           <li v-for="(item, index) in visibleList" :key="index">
             <div>
-              <div :id="index" @click="toggleDetail(item, index)">
-                {{ item.formattedDate }} - {{ item.title }}
+              <div
+                :id="index"
+                @click="toggleDetail(item, index)"
+                class="thesis-header"
+              >
+                {{ new Date(item.date).getFullYear() }} - {{ item.title }}
               </div>
               <div
                 v-if="visibleDetails.includes(index)"
@@ -121,20 +120,31 @@
                 </div>
                 <div class="flex row border-bottom q-py-md">
                   <div>Lectura:</div>
-                  <div>{{ item.date }}</div>
+                  <div>{{ item.formattedDate }}</div>
                 </div>
               </div>
             </div>
           </li>
         </ul>
+        <!-- PAGINATION -->
+        <div class="q-pa-lg flex flex-center">
+          <q-pagination
+            v-if="maxPages > 1"
+            v-model="page"
+            :max="maxPages"
+            :max-pages="10"
+            color="orange"
+            :boundary-numbers="false"
+            @update:model-value="showPage"
+          />
+        </div>
       </q-card-section>
       <q-card-section>
-        <q-btn
-          color="black"
-          label="Cercador de tesis"
-          class="absolute-center q-mt-lg"
-          @click="goUdG"
-        />
+        <q-btn color="black" class="absolute-center q-mt-lg" type="a">
+          <a href="https://www.udg.edu" class="thesis-searcher" target="_blank"
+            >CERCADOR DE TESIS</a
+          >
+        </q-btn>
       </q-card-section>
     </q-card>
   </q-dialog>
@@ -169,6 +179,12 @@ export default {
     });
 
     const close = () => {
+      appStore.setProgramClickedOnChart("");
+      appStore.setProgramModalVisibility("false");
+      appStore.setLRModalVisibility("false");
+    };
+
+    const goBack = () => {
       appStore.setProgramClickedOnChart("");
       appStore.setLRModalVisibility("false");
     };
@@ -297,10 +313,6 @@ export default {
       isVisible.value = false;
     });
 
-    const goUdG = () => {
-      document.location = "https://www.udg.edu";
-    };
-
     return {
       nThesisInLR,
       isVisible,
@@ -321,7 +333,7 @@ export default {
       maxPages,
       page,
       showPage,
-      goUdG,
+      goBack,
     };
   },
 };
@@ -378,6 +390,8 @@ button.custom:hover {
   border: 1px solid #00000029;
   padding: 20px;
   justify-content: space-between;
+  cursor: default;
+  text-transform: unset;
 }
 
 .details-container div {
@@ -393,7 +407,7 @@ button.custom:hover {
 ul.tesis-list li {
   padding: 5px 0px;
 }
-ul.tesis-list li:hover {
+ul.tesis-list .thesis-header:hover {
   text-decoration: underline;
   cursor: pointer;
 }
@@ -407,6 +421,14 @@ ul.tesis-list li:hover {
 .filter-msg {
   text-align: left;
   font-size: 25px;
+}
+.thesis-searcher {
+  color: white;
+  text-decoration: none;
+}
+
+.arrow-back {
+  cursor: pointer;
 }
 @media (min-width: 600px) {
   .q-dialog__inner--minimized > div {

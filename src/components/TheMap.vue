@@ -17,8 +17,14 @@
   <!-- RELOAD TEMPLATE -->
   <template>
     <div ref="reloadButton" id="control-reload-container">
-      <button class="maplibregl-ctrl reload-ctrl" @click="resetMapView">
-        <span class="maplibregl-ctrl-icon" aria-hidden="true"></span>
+      <button
+        class="maplibregl-ctrl reload-ctrl"
+        @click="resetMapView"
+        title="Inici"
+      >
+        <span class="maplibregl-ctrl-icon" aria-hidden="true">
+          <q-icon name="home" size="lg" color="white"></q-icon>
+        </span>
       </button>
     </div>
   </template>
@@ -28,6 +34,7 @@
     <div ref="filterButton" id="control-filter-container">
       <button
         id="filter-button"
+        title="Filtres"
         class="maplibregl-ctrl filter-ctrl"
         :class="filterIsVisible ? 'active' : ''"
         @click="toggleFilter"
@@ -175,6 +182,7 @@ export default {
         const noName = appStore.getLRnoName;
         thesisData = organizeThesisData(originalData, noName);
         countriesWithThesis = thesisData.paisos;
+
         const keys = Object.keys(countriesWithThesis);
 
         // Remove centroids with no thesis to avoid cluster centroids with 0 thesis
@@ -350,7 +358,7 @@ export default {
     }
     const countrySelected = (code) => {
       if (code.length) {
-        flyToCountry(map, countriesData, code);
+        flyToCountry(map, countriesData, [code], { hoverStyle: true });
       }
     };
 
@@ -401,6 +409,9 @@ export default {
       map.value.getSource("clusters").setData(filteredCentroidsData);
 
       const researchLines = getProgramResearchLines(filter.program);
+      flyToCountry(map, filteredCountriesData, filteredCountryKeys, {
+        hoverStyle: false,
+      });
       appStore.setResearchLines(researchLines);
     };
 
@@ -455,6 +466,9 @@ export default {
         map.value.getSource("countries").setData(countriesData);
         appStore.setAllCountryNames(thesisData.countryNames);
         appStore.setFilteredCountryNames([]);
+        flyToCountry(map, countriesData, Object.keys(countriesWithThesis), {
+          hoverStyle: false,
+        });
       } else {
         handleFilter(filter);
       }
@@ -554,10 +568,6 @@ export default {
   margin: 20px;
 }
 
-.reload-ctrl,
-.filter-ctrl {
-}
-
 .maplibregl-ctrl-compass {
   display: none !important;
 }
@@ -585,7 +595,8 @@ export default {
 }
 
 .map .maplibregl-ctrl.reload-ctrl .maplibregl-ctrl-icon {
-  background-image: url("assets/icons/refresh.svg");
+  /* background-image: url("assets/icons/refresh.svg"); */
+  background-color: black;
 }
 
 .map .maplibregl-ctrl button.maplibregl-ctrl-zoom-in .maplibregl-ctrl-icon {

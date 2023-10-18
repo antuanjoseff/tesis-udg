@@ -1,5 +1,5 @@
 <template>
-  <q-dialog v-model="modalProgram" full-width full-height>
+  <q-dialog v-model="modalProgram" full-width position="bottom">
     <q-card class="dialog-container">
       <q-card-section
         class="row items-center close-card"
@@ -69,22 +69,15 @@
         </div>
       </q-card-section>
       <q-card-section v-if="isVisible">
-        <div class="q-pa-lg flex flex-center">
-          <q-pagination
-            v-if="maxPages > 1"
-            v-model="page"
-            :max="maxPages"
-            :max-pages="10"
-            color="orange"
-            :boundary-numbers="false"
-            @update:model-value="showPage"
-          />
-        </div>
         <ul class="tesis-list">
           <li v-for="(item, index) in visibleList" :key="index">
             <div>
-              <div :id="index" @click="toggleDetail(item, index)">
-                {{ item.formattedDate }} - {{ item.title }}
+              <div
+                :id="index"
+                @click="toggleDetail(item, index)"
+                class="thesis-header"
+              >
+                {{ new Date(item.date).getFullYear() }} - {{ item.title }}
               </div>
               <div
                 v-if="visibleDetails.includes(index)"
@@ -100,20 +93,31 @@
                 </div>
                 <div class="flex row border-bottom q-py-md">
                   <div>Lectura:</div>
-                  <div>{{ item.date }}</div>
+                  <div>{{ item.formattedDate }}</div>
                 </div>
               </div>
             </div>
           </li>
         </ul>
+        <!-- PAGINATION -->
+        <div class="q-pa-lg flex flex-center">
+          <q-pagination
+            v-if="maxPages > 1"
+            v-model="page"
+            :max="maxPages"
+            :max-pages="10"
+            color="orange"
+            :boundary-numbers="false"
+            @update:model-value="showPage"
+          />
+        </div>
       </q-card-section>
       <q-card-section>
-        <q-btn
-          color="black"
-          label="Cercador de tesis"
-          class="absolute-center q-mt-lg"
-          @click="goUdG"
-        />
+        <q-btn color="black" class="absolute-center q-mt-lg" type="a">
+          <a href="https://www.udg.edu" class="thesis-searcher" target="_blank"
+            >CERCADOR DE TESIS</a
+          >
+        </q-btn>
       </q-card-section>
     </q-card>
   </q-dialog>
@@ -194,7 +198,6 @@ export default {
         const [y, m, d] = strDate.split("-");
         const date = new Date(y, m - 1, d);
         const year = date.getFullYear();
-        // const month = String(date.getMonth() + 1).padStart(2, "0");
         const month = date.toLocaleString("default", { month: "short" });
         const day = String(date.getDate()).padStart(2, "0");
         return `${day}-${month}-${year}`;
@@ -351,7 +354,7 @@ button.custom:hover {
 ul.tesis-list li {
   padding: 5px 0px;
 }
-ul.tesis-list li:hover {
+ul.tesis-list .thesis-header:hover {
   text-decoration: underline;
   cursor: pointer;
 }
@@ -362,5 +365,9 @@ ul.tesis-list li:hover {
 .filter-msg {
   text-align: left;
   font-size: 25px;
+}
+.thesis-searcher {
+  color: white;
+  text-decoration: none;
 }
 </style>

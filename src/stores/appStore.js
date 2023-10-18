@@ -117,7 +117,6 @@ export const useAppStore = defineStore("counter", {
     },
 
     setLRModalVisibility(visibility) {
-      this.programModalVisibility = false;
       this.LRModalVisibility = visibility;
     },
 

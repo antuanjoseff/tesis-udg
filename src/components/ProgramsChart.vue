@@ -1,6 +1,10 @@
 <template>
   <div class="chart-container">
-    <canvas id="myChart" :style="{ height: chartHeight }"></canvas>
+    <canvas
+      id="myChart"
+      class="bar-chart"
+      :style="{ height: chartHeight }"
+    ></canvas>
   </div>
 </template>
 
@@ -19,6 +23,7 @@ export default {
     const chartHeight = ref();
 
     const options = {
+      maintainAspectRatio: false,
       plugins: {
         legend: {
           display: false,
@@ -99,6 +104,7 @@ export default {
 
       const ctx = document.getElementById("myChart");
       ctx.height = chartHeight.value;
+      ctx.width = "800";
 
       myChart = new Chart(ctx, {
         type: "bar",
@@ -147,5 +153,10 @@ canvas {
 }
 .chart-container {
   border: 1px solid #11172b;
+  display: flex;
+  justify-content: space-around;
+}
+canvas.bar-chart {
+  display: flex;
 }
 </style>

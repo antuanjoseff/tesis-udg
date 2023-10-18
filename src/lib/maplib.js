@@ -1,3 +1,4 @@
+import Bounds from "./Bounds.js";
 import {
   clusters as clustersProperties,
   countries as countriesProperties,
@@ -27,7 +28,7 @@ function addLayersToMap(map, isClustered) {
     layout: {
       "text-field": ["get", "tesis"],
       "text-font": ["FiraSans-Bold"],
-      "text-size": 14,      
+      "text-size": 14,
       "icon-image": "marker",
       "icon-size": 0.7,
       "icon-allow-overlap": true,
@@ -41,22 +42,6 @@ function addLayersToMap(map, isClustered) {
     // paint: unclusteredProperties,
   });
 
-  // map.value.addLayer({
-  //   id: "unclustered-count",
-  //   type: "symbol",
-  //   source: "clusters",
-  //   layout: {
-  //     "text-field": ["get", "tesis"],
-  //     "text-font": ["FiraSans-Bold"],
-  //     "text-size": 14,
-  //     visibility: "none",
-  //   },
-  //   filter: ["all", [">", ["get", "tesis"], 0], ["!", ["has", "point_count"]]],
-  //   paint: {
-  //     "text-color": "#fff",
-  //   },
-  // });
-
   // CLUSTERED
   map.value.addLayer({
     id: "clusters",
@@ -64,7 +49,6 @@ function addLayersToMap(map, isClustered) {
     source: "clusters",
     filter: ["all", [">", ["get", "sum"], 0], ["has", "point_count"]],
     layout: {
-      
       visibility: "none",
     },
     paint: clustersProperties,
@@ -109,29 +93,36 @@ function addLayersToMap(map, isClustered) {
   });
 }
 
-const flyToCountry = (map, countriesData, code) => {
-  const countryGeom = getCountryGeometry(countriesData, code.toUpperCase());
-  const bounds = getBbox(countryGeom);
-  map.value.fitBounds(bounds, {
+const flyToCountry = (map, countriesData, code, ...hoverStyle) => {
+  let bounds = new Bounds([]);
+  code.forEach((c) => {
+    const countryGeom = getCountryGeometry(countriesData, c.toUpperCase());
+    bounds.expand(getBbox(countryGeom));
+  });
+
+  map.value.fitBounds(bounds.getBounds(), {
     padding: 20,
   });
-  // Find and select country
-  let country = undefined
-  countriesData.features.forEach((element) => {
-    map.value.setFeatureState(
-      { source: "countries", id: element.id },
-      { hover: false }
-    );
-    if (element.properties.iso_a3.toLowerCase() === code.toLowerCase()) {
-      country = element
-    }
-  })
 
-  if (country) {
-    map.value.setFeatureState(
-      { source: "countries", id: country.id },
-      { hover: true }
-    );  
+  // Check if selected style is required
+  if (code.length === 1 && hoverStyle) {
+    let country = undefined;
+    countriesData.features.forEach((element) => {
+      map.value.setFeatureState(
+        { source: "countries", id: element.id },
+        { hover: false }
+      );
+      if (element.properties.iso_a3.toLowerCase() === code[0].toLowerCase()) {
+        country = element;
+      }
+    });
+
+    if (country) {
+      map.value.setFeatureState(
+        { source: "countries", id: country.id },
+        { hover: true }
+      );
+    }
   }
 };
 

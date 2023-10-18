@@ -1,5 +1,4 @@
 import { api } from "src/boot/axios";
-import { countries } from "./paintProperties";
 
 const getRandomColor = () => {
   var letters = "0123456789ABCDEF";
@@ -235,20 +234,6 @@ const organizeThesisData = (tesis_list, noName, filter = "") => {
       });
     });
   });
-
-  // Object.keys(result).forEach((iso_a3) => {
-  //   result[iso_a3].programs.forEach((program, idP) => {
-  //     program.researchLines.forEach((researchLine, idL) => {
-  //       if (result[iso_a3].programs[idP].researchLines[idL].thesis.length > 5) {
-  //         result[iso_a3].programs[idP].researchLines[idL].thesis =
-  //           researchLine.thesis.forEach((t) => {
-  //             console.log(t.date);
-  //           });
-  //         console.log("...............................");
-  //       }
-  //     });
-  //   });
-  // });
 
   return { programes: programes, paisos: result, countryNames };
 };

@@ -7,6 +7,7 @@
     icon="fa-solid fa-map-location-dot"
     @update:model-value="toggleLayer"
     @click.prevent="preventDefault"
+    title="Canvia tipus de visualització"
   />
 </template>
 
@@ -50,8 +51,8 @@ export default {
   z-index: 200;
 }
 
-.q-toggle__inner--truthy .toggle-switch .q-toggle__track{
+.q-toggle__inner--truthy .toggle-switch .q-toggle__track {
   opacity: 1;
-  color: #C1C3D5;
+  color: #c1c3d5;
 }
 </style>
