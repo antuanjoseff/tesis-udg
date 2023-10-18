@@ -1,7 +1,7 @@
 <template>
   <div class="map-wrap">
-    <loading-animation></loading-animation>
-    <div class="map" ref="mapContainer"></div>
+    <div class="map" ref="mapContainer">
+    </div>
     <toggle-layer @toggleLayerType="toggleLayerType" />
     <search-country
       ref="searchCountry"
@@ -14,6 +14,9 @@
       @filterReset="handleResetFilter"
     ></filter-box>
   </div>
+    <q-inner-loading :showing="loading" color="orange">
+      <q-spinner-gears size="60px"  color="black"></q-spinner-gears>
+    </q-inner-loading>
 
   <!-- RELOAD TEMPLATE -->
   <template>
@@ -48,7 +51,6 @@
 
 <script>
 import { useAppStore } from "../stores/appStore.js";
-import LoadingAnimation from "components/LoadingAnimation.vue";
 import ToggleLayer from "components/ToggleLayer.vue";
 import SearchCountry from "components/SearchCountry.vue";
 import FilterBox from "components/FilterBox.vue";
@@ -66,7 +68,7 @@ import { organizeThesisData, getData, addThesisDataTo } from "src/lib/utils.js";
 
 export default {
   name: "TheMap",
-  components: { ToggleLayer, SearchCountry, FilterBox, LoadingAnimation },
+  components: { ToggleLayer, SearchCountry, FilterBox },
   emits: ["toggle-filter"],
   setup(props, context) {
     const mapContainer = shallowRef(null);
@@ -75,6 +77,7 @@ export default {
     const searchCountry = ref();
     const reloadButton = ref();
     const filterButton = ref();
+    const loading = ref(true);
     let popup;
     let debounceTimer = 250;
     let hoveredStateId = null;
@@ -156,6 +159,7 @@ export default {
       }
 
       map.value.once("load", async () => {
+        loading.value = false
         const reloadControl = new CustomControl(reloadButton);
         map.value.addControl(reloadControl, "top-left");
 
@@ -515,6 +519,7 @@ export default {
       handleResetFilter,
       resetCountrySearch,
       resetMapView,
+      loading
     };
   },
 };
