@@ -1,5 +1,6 @@
 <template>
   <div class="map-wrap">
+    <loading-animation></loading-animation>
     <div class="map" ref="mapContainer"></div>
     <toggle-layer @toggleLayerType="toggleLayerType" />
     <search-country
@@ -47,6 +48,7 @@
 
 <script>
 import { useAppStore } from "../stores/appStore.js";
+import LoadingAnimation from "components/LoadingAnimation.vue";
 import ToggleLayer from "components/ToggleLayer.vue";
 import SearchCountry from "components/SearchCountry.vue";
 import FilterBox from "components/FilterBox.vue";
@@ -64,7 +66,7 @@ import { organizeThesisData, getData, addThesisDataTo } from "src/lib/utils.js";
 
 export default {
   name: "TheMap",
-  components: { ToggleLayer, SearchCountry, FilterBox },
+  components: { ToggleLayer, SearchCountry, FilterBox, LoadingAnimation },
   emits: ["toggle-filter"],
   setup(props, context) {
     const mapContainer = shallowRef(null);
