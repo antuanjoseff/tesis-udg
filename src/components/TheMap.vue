@@ -3,10 +3,12 @@
     <div class="map" ref="mapContainer"></div>
     <toggle-layer @toggleLayerType="toggleLayerType" />
     <search-country
+      ref="searchCountry"
       @countrySelected="countrySelected"
       @resetCountrySearch="resetCountrySearch"
     />
     <filter-box
+      ref="filterBox"
       @filterSet="handleFilter"
       @filterReset="handleResetFilter"
     ></filter-box>
@@ -15,7 +17,7 @@
   <!-- RELOAD TEMPLATE -->
   <template>
     <div ref="reloadButton" id="control-reload-container">
-      <button class="maplibregl-ctrl reload-ctrl" @click="reloadPage">
+      <button class="maplibregl-ctrl reload-ctrl" @click="resetMapView">
         <span class="maplibregl-ctrl-icon" aria-hidden="true"></span>
       </button>
     </div>
@@ -60,6 +62,8 @@ export default {
   setup(props, context) {
     const mapContainer = shallowRef(null);
     const map = shallowRef(null);
+    const filterBox = ref();
+    const searchCountry = ref();
     const reloadButton = ref();
     const filterButton = ref();
     let popup;
@@ -70,7 +74,10 @@ export default {
       thesisData,
       countriesWithThesis,
       originalData;
+
     const appStore = useAppStore();
+
+    const initialState = appStore.getInitialMapView;
 
     const isClustered = computed(() => {
       return appStore.isClustered;
@@ -105,12 +112,6 @@ export default {
       //   const apiKey = 'YOUR_MAPTILER_API_KEY_HERE';
 
       // const initialState = { lng: -70.11617, lat: 43.6844, zoom: 14 };
-      const initialState = { lng: 2.813179, lat: 41.98211, zoom: 2 };
-
-      const homePosition = {
-        center: [144, -37],
-      };
-
       map.value = markRaw(
         new Map({
           container: mapContainer.value,
@@ -185,7 +186,7 @@ export default {
         countriesData = await getData(countriesUrl);
 
         appStore.setProgrames(thesisData.programes.sort());
-        appStore.setCountryNames(thesisData.countryNames.sort());
+        appStore.setAllCountryNames(thesisData.countryNames.sort());
 
         countriesData = addThesisDataTo(countriesData, countriesWithThesis);
         centroidsData = addThesisDataTo(centroidsData, countriesWithThesis);
@@ -357,12 +358,22 @@ export default {
       let filteredCountryKeys = [];
       let filteredCountriesData = JSON.parse(JSON.stringify(countriesData));
       let filteredCentroidsData = JSON.parse(JSON.stringify(centroidsData));
-
+      let filteredCountries = [];
       filteredCountriesData.features.forEach((country, idx) => {
         const nTesis = getThesisByProgramAndCountry(
           country.properties.iso_a3,
           filter
         );
+        if (nTesis !== 0) {
+          const filtered = thesisData.countryNames.find((c) => {
+            return (
+              c.value.toUpperCase() === country.properties.iso_a3.toUpperCase()
+            );
+          });
+          if (filtered) {
+            filteredCountries.push(filtered);
+          }
+        }
         filteredCountriesData.features[idx].properties.tesis = nTesis;
         if (nTesis) {
           const countryCode =
@@ -372,6 +383,8 @@ export default {
           }
         }
       });
+
+      appStore.setFilteredCountryNames(filteredCountries);
 
       filteredCentroidsData.features.forEach((country, idx) => {
         filteredCentroidsData.features[idx].properties.tesis =
@@ -437,9 +450,11 @@ export default {
 
     const handleResetFilter = (filter) => {
       if (filter.program === "") {
+        searchCountry.value.setModel("");
         map.value.getSource("clusters").setData(centroidsData);
         map.value.getSource("countries").setData(countriesData);
-        appStore.setCountryNames(thesisData.countryNames);
+        appStore.setAllCountryNames(thesisData.countryNames);
+        appStore.setFilteredCountryNames([]);
       } else {
         handleFilter(filter);
       }
@@ -458,16 +473,24 @@ export default {
       context.emit("toggle-filter");
     };
 
-    const reloadPage = (researchLine) => {
-      location.reload();
+    const resetMapView = (researchLine) => {
+      filterBox.value.resetProgram();
+      searchCountry.value.setModel("");
+      map.value.flyTo({
+        center: [initialState.lng, initialState.lat],
+        zoom: initialState.zoom,
+        essential: true, // this animation is considered essential with respect to prefers-reduced-motion
+      });
+      context.emit("resetMapView");
     };
 
     return {
       map,
+      filterBox,
+      searchCountry,
       filterIsVisible,
       filterButton,
       reloadButton,
-      reloadPage,
       toggleFilter,
       mapContainer,
       handleFilter,
@@ -475,6 +498,7 @@ export default {
       countrySelected,
       handleResetFilter,
       resetCountrySearch,
+      resetMapView,
     };
   },
 };

@@ -2,6 +2,7 @@
   <div class="q-pa-md search-country">
     <div class="q-gutter-md row">
       <q-select
+        label="País"
         :model-value="model"
         option-value="value"
         option-label="label"
@@ -53,7 +54,9 @@ export default {
     const filledStyle = ref(false);
 
     const stringOptions = computed(() => {
-      return appStore.getCountryNames;
+      return appStore.getFilteredCountryNames.length
+        ? appStore.getFilteredCountryNames
+        : appStore.getAllCountryNames;
     });
     const options = ref(JSON.stringify(stringOptions.value));
 
@@ -102,9 +105,9 @@ export default {
     };
 
     const resetCountrySearch = () => {
-      model.value = ''
-      context.emit('resetCountrySearch')
-    }
+      model.value = "";
+      context.emit("resetCountrySearch");
+    };
 
     return {
       filledStyle,
@@ -115,7 +118,7 @@ export default {
       options,
       showSelectStyle,
       hideSelectStyle,
-      resetCountrySearch
+      resetCountrySearch,
     };
   },
 };

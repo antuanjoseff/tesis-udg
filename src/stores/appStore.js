@@ -3,13 +3,17 @@ import { defineStore } from "pinia";
 export const useAppStore = defineStore("counter", {
   state: () => ({
     // Initial map view mode
+    initialMapView: { lng: 2.813179, lat: 41.98211, zoom: 2 },
+
     clustered: false,
 
     programes: [],
 
     researchLines: [],
 
-    countryNames: [],
+    allCountryNames: [],
+
+    filteredCountryNames: [],
 
     selectedCountry: {},
 
@@ -33,6 +37,8 @@ export const useAppStore = defineStore("counter", {
   }),
 
   getters: {
+    getInitialMapView: (state) => state.initialMapView,
+
     getProgrames: (state) => state.programes,
 
     getResearchLines: (state) => state.researchLines,
@@ -47,7 +53,9 @@ export const useAppStore = defineStore("counter", {
 
     getFilteredLine: (state) => state.filteredLine,
 
-    getCountryNames: (state) => state.countryNames,
+    getAllCountryNames: (state) => state.allCountryNames,
+
+    getFilteredCountryNames: (state) => state.filteredCountryNames,
 
     getProgramModalVisibility: (state) => state.programModalVisibility,
 
@@ -75,8 +83,12 @@ export const useAppStore = defineStore("counter", {
       this.clustered = value;
     },
 
-    setCountryNames(countries) {
-      this.countryNames = countries;
+    setAllCountryNames(countries) {
+      this.allCountryNames = countries;
+    },
+
+    setFilteredCountryNames(countries) {
+      this.filteredCountryNames = countries;
     },
 
     setProgramClickedOnChart(program) {
