@@ -11,7 +11,7 @@
 <script>
 import { Chart } from "chart.js/auto";
 import { ref, onMounted, computed } from "vue";
-import { useAppStore } from "../stores/appStore.js";
+import { useAppStore } from "src/stores/appStore.js";
 
 export default {
   name: "ProgramsChart",

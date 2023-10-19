@@ -1,7 +1,7 @@
 <template>
   <q-dialog
     v-model="modalVisibility"
-    class="program-container"
+    class="researchline-modal-container"
     full-width
     position="left"
   >
@@ -152,7 +152,7 @@
 
 <script>
 import { useAppStore } from "src/stores/appStore.js";
-import LRChart from "src/components/LRChart.vue";
+import LRChart from "src/components/charts/LRChart.vue";
 import { computed, ref, onUpdated } from "vue";
 
 export default {
@@ -339,100 +339,100 @@ export default {
 };
 </script>
 
-<style scoped>
-.dialog-container {
-  padding: 40px;
-}
-button.custom {
-  background-color: #11172b;
-  color: white;
-}
+<style>
+.researchline-modal-container {
+  .q-dialog__inner {
+    min-width: 100vw !important;
+  }
+  .dialog-container {
+    padding: 40px;
+  }
+  button.custom {
+    background-color: #11172b;
+    color: white;
+  }
 
-button.custom-white {
-  background-color: white;
-  color: #11172b;
-  border-radius: 50%;
-  border: 1px solid #11172b;
-}
+  button.custom-white {
+    background-color: white;
+    color: #11172b;
+    border-radius: 50%;
+    border: 1px solid #11172b;
+  }
 
-button.custom-white:hover,
-button.custom:hover {
-  background-color: #11172b88;
-  color: white;
-}
+  button.custom-white:hover,
+  button.custom:hover {
+    background-color: #11172b88;
+    color: white;
+  }
 
-.country-name,
-.tesis-llegides,
-.thesis {
-  font-size: 30px;
-  color: #11172b;
-}
+  .country-name,
+  .tesis-llegides,
+  .thesis {
+    font-size: 30px;
+    color: #11172b;
+  }
 
-.thesis-count {
-  font-size: 70px;
-}
+  .thesis-count {
+    font-size: 70px;
+  }
 
-.programa-doctorat {
-  font-size: 50px;
-  font-family: "Roboto";
-  font-weight: 500;
-}
-.separator {
-  background: #11172b;
-}
-.tesis-llegides-container {
-  display: flex;
-  justify-content: space-between;
-  border: 1px solid #11172b;
-  padding: 20px;
-}
-.details-container {
-  border: 1px solid #00000029;
-  padding: 20px;
-  justify-content: space-between;
-  cursor: default;
-  text-transform: unset;
-}
+  .programa-doctorat {
+    font-size: 50px;
+    font-family: "Roboto";
+    font-weight: 500;
+  }
+  .separator {
+    background: #11172b;
+  }
+  .tesis-llegides-container {
+    display: flex;
+    justify-content: space-between;
+    border: 1px solid #11172b;
+    padding: 20px;
+  }
+  .details-container {
+    border: 1px solid #00000029;
+    padding: 20px;
+    justify-content: space-between;
+    cursor: default;
+    text-transform: unset;
+  }
 
-.details-container div {
-  min-width: 100px;
-}
-.border-bottom {
-  border-bottom: 1px solid #00000029;
-}
-.border-bottom div:first-child {
-  font-weight: 600;
-}
+  .details-container div {
+    min-width: 100px;
+  }
+  .border-bottom {
+    border-bottom: 1px solid #00000029;
+  }
+  .border-bottom div:first-child {
+    font-weight: 600;
+  }
 
-ul.tesis-list li {
-  padding: 5px 0px;
-}
-ul.tesis-list .thesis-header:hover {
-  text-decoration: underline;
-  cursor: pointer;
-}
-.full-width div {
-  min-width: 100%;
-}
-.close-card.filtered {
-  background: black;
-  color: white;
-}
-.filter-msg {
-  text-align: left;
-  font-size: 25px;
-}
-.thesis-searcher {
-  color: white;
-  text-decoration: none;
-}
+  ul.tesis-list li {
+    padding: 5px 0px;
+  }
+  ul.tesis-list .thesis-header:hover {
+    text-decoration: underline;
+    cursor: pointer;
+  }
+  .full-width div {
+    min-width: 100%;
+  }
+  .close-card.filtered {
+    background: black;
+    color: white;
+  }
+  .filter-msg {
+    text-align: left;
+    font-size: 25px;
+  }
+  .thesis-searcher {
+    color: white;
+    text-decoration: none;
+  }
 
-.arrow-back {
-  cursor: pointer;
-}
-@media (min-width: 600px) {
-  .q-dialog__inner--minimized > div {
-    min-width: "50%";
+  .arrow-back {
+    cursor: pointer;
   }
 }
 </style>

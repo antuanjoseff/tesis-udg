@@ -125,7 +125,7 @@
 
 <script>
 import { useAppStore } from "src/stores/appStore.js";
-import ProgramsChart from "src/components/ProgramsChart.vue";
+import ProgramsChart from "src/components/charts/ProgramsChart.vue";
 
 import { computed, ref, onUpdated } from "vue";
 

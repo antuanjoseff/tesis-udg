@@ -15,7 +15,7 @@
 <script>
 import { Chart } from "chart.js/auto";
 import { ref, onMounted, computed } from "vue";
-import { useAppStore } from "../stores/appStore.js";
+import { useAppStore } from "src/stores/appStore.js";
 
 export default {
   name: "LRChart",
@@ -43,6 +43,24 @@ export default {
           callbacks: {
             label: function (tooltipItem) {
               return `  ${tooltipItem.formattedValue}`;
+            },
+            title: function (tooltipItem) {
+              const formatTextWrap = (text, maxLineLength) => {
+                const words = text.replace(/[\r\n]+/g, " ").split(" ");
+                let lineLength = 0;
+
+                // use functional reduce, instead of for loop
+                return words.reduce((result, word) => {
+                  if (lineLength + word.length >= maxLineLength) {
+                    lineLength = word.length;
+                    return result + `\n${word}`; // don't add spaces upfront
+                  } else {
+                    lineLength += word.length + (result ? 1 : 0);
+                    return result ? result + ` ${word}` : `${word}`; // add space only when needed
+                  }
+                }, "");
+              };
+              return formatTextWrap(tooltipItem[0].label, 40);
             },
           },
         },

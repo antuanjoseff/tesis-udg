@@ -1,7 +1,6 @@
 <template>
   <div class="map-wrap">
-    <div class="map" ref="mapContainer">
-    </div>
+    <div class="map" ref="mapContainer"></div>
     <toggle-layer @toggleLayerType="toggleLayerType" />
     <search-country
       ref="searchCountry"
@@ -14,9 +13,9 @@
       @filterReset="handleResetFilter"
     ></filter-box>
   </div>
-    <q-inner-loading :showing="loading" color="orange">
-      <q-spinner-gears size="60px"  color="black"></q-spinner-gears>
-    </q-inner-loading>
+  <q-inner-loading :showing="loading" color="orange">
+    <q-spinner-gears size="60px" color="black"></q-spinner-gears>
+  </q-inner-loading>
 
   <!-- RELOAD TEMPLATE -->
   <template>
@@ -124,6 +123,11 @@ export default {
       //   const apiKey = 'YOUR_MAPTILER_API_KEY_HERE';
 
       // const initialState = { lng: -70.11617, lat: 43.6844, zoom: 14 };
+      const defaultLocale = {
+        "FullscreenControl.Enter": "Entrar a pantalla completa",
+        "FullscreenControl.Exit": "Sortir de pantalla completa",
+      };
+
       map.value = markRaw(
         new Map({
           container: mapContainer.value,
@@ -131,9 +135,10 @@ export default {
           center: [initialState.lng, initialState.lat],
           zoom: initialState.zoom,
           maxZoom: 4,
+          locale: defaultLocale,
         })
       );
-      const nav = new NavigationControl();
+      const nav = new NavigationControl({ showCompass: false });
       map.value.addControl(nav, "top-left");
 
       // DEFINE MARKER
@@ -159,11 +164,14 @@ export default {
       }
 
       map.value.once("load", async () => {
-        loading.value = false
+        loading.value = false;
         const reloadControl = new CustomControl(reloadButton);
         map.value.addControl(reloadControl, "top-left");
 
-        map.value.addControl(new FullscreenControl(), "top-left");
+        map.value.addControl(
+          new FullscreenControl({ title: "Cagate lorito" }),
+          "top-left"
+        );
 
         const filterControl = new CustomControl(filterButton);
         map.value.addControl(filterControl, "top-left");
@@ -519,7 +527,7 @@ export default {
       handleResetFilter,
       resetCountrySearch,
       resetMapView,
-      loading
+      loading,
     };
   },
 };
@@ -575,10 +583,6 @@ export default {
   margin: 20px;
 }
 
-.maplibregl-ctrl-compass {
-  display: none !important;
-}
-
 .map .maplibregl-ctrl.reload-ctrl,
 .map .maplibregl-ctrl.filter-ctrl {
   background-color: transparent;
@@ -593,6 +597,13 @@ export default {
 .map .maplibregl-ctrl-group button {
   width: 40px;
   height: 40px;
+  border: unset;
+  background-color: unset;
+  border-radius: 0px;
+}
+
+.map .maplibregl-ctrl-group:not(:empty) {
+  box-shadow: none;
 }
 
 .maplibregl-ctrl-icon {
@@ -601,6 +612,9 @@ export default {
   height: 40px;
 }
 
+.map .maplibregl-ctrl-group {
+  border-radius: 0px;
+}
 .map .maplibregl-ctrl.reload-ctrl .maplibregl-ctrl-icon {
   /* background-image: url("assets/icons/refresh.svg"); */
   background-color: black;
